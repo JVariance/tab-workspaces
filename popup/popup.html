@@ -1,38 +1,61 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title></title>
-    <link rel="stylesheet" href="css/popup.css">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500,700" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container" id="workspace-list-container">
-      <div class="title">Workspaces</div>
-      <ul id="workspace-list">
-        <!-- Populated with js -->
-      </ul>
 
-      <div class="footer-container">
-        <a href="#" class="footer split-large js-switch-panel">Edit workspaces</a><!--
-        --><a href="#" class="footer split-small js-new-workspace"></a>
-      </div>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title></title>
+  <link rel="stylesheet" href="css/popup.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500,700" rel="stylesheet">
+</head>
+
+<body theme="dark">
+  <div class="container" id="workspace-list-container">
+    <div class="title">
+      <h1>Workspaces</h1>
+      <input id="theme-switch" class="js-switch-theme" type="checkbox" checked>
+      <label for="theme-switch">
+        <svg id="moon-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+        <svg id="sun-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+          </path>
+        </svg>
+      </label>
     </div>
+    <ul id="workspace-list">
+      <!-- Populated with js -->
+    </ul>
 
-    <div class="container hide" id="workspace-edit-container">
-      <div class="title">Workspaces</div>
-      <ul id="workspace-edit">
-        <!-- Populated with js -->
-      </ul>
-
-      <div class="footer-container">
-        <a href="#" class="footer full-width js-switch-panel">Stop editing</a>
-      </div>
+    <div class="footer-container">
+      <a href="#" class="footer split-large js-switch-panel">Edit workspaces</a>
+      <a href="#" class="footer split-small js-new-workspace">
+        <svg id="plus-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+      </a>
     </div>
+  </div>
 
-    <!-- Browser actions don't receive focus by default, so set focus to this hidden element to be able to capture keyup events -->
-    <input type="text" id="keyupTrap" class="almost-hide">
+  <div class="container hide" id="workspace-edit-container">
+    <div class="title">Workspaces</div>
+    <ul id="workspace-edit">
+      <!-- Populated with js -->
+    </ul>
 
-    <script src="js/backgroundMock.js"></script>
-    <script src="js/popup.js"></script>
-  </body>
+    <div class="footer-container">
+      <a href="#" class="footer full-width js-switch-panel">Stop editing</a>
+    </div>
+  </div>
+
+  <!-- Browser actions don't receive focus by default, so set focus to this hidden element to be able to capture keyup events -->
+  <input type="text" id="keyupTrap" class="almost-hide">
+
+  <script src="js/backgroundMock.js"></script>
+  <script src="js/popup.js"></script>
+</body>
+
 </html>
