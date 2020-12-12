@@ -2,7 +2,7 @@ class Workspace {
   constructor(id, state) {
     this.id = id;
 
-    if (state){
+    if (state) {
       this.name = state.name;
       this.active = state.active;
       this.hiddenTabs = state.hiddenTabs;
@@ -37,7 +37,7 @@ class Workspace {
   }
 
   async getTabs() {
-    if (this.active){
+    if (this.active) {
       // Not counting pinned tabs. Should we?
       const tabs = await browser.tabs.query({
         pinned: false,
@@ -57,47 +57,40 @@ class Workspace {
     return obj;
   }
 
-  // Store hidden tabs in storage
-  async prepareToHide() {
-    const tabs = await browser.tabs.query({
-      windowId: this.windowId,
-      pinned: false
-    });
-
-    tabs.forEach(tab => {
-      this.hiddenTabs.push(tab);
-    })
-  }
-
-  // Then remove the tabs from the window
+  // Hide tabs
   async hide() {
     this.active = false;
     await this.storeState();
 
-    const tabIds = this.hiddenTabs.map(tab => tab.id);
-    await browser.tabs.remove(tabIds);
+    console.log("hiding window id: " + this.windowId);
+
+    const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
+    const tabIds = hiddenTabs.map(tab => tab.id);
+    console.log({ tabIds });
+    await browser.tabs.hide(tabIds);
+    // await browser.tabs.remove(tabIds);
   }
 
   async show() {
-    const tabs = this.hiddenTabs.filter(tab => Util.isPermissibleURL(tab.url));
+    // const tabs = this.hiddenTabs.filter(tab => Util.isPermissibleURL(tab.url));
 
-    if (tabs.length == 0){
-      tabs.push({
-        url: null,
-        active: true
-      });
+    console.log("show function - workspace.js");
+
+    console.log("new window id: " + this.windowId);
+
+    const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
+
+    console.log({ hiddenTabs });
+
+    const tabIds = hiddenTabs?.map(tab => tab.id);
+
+    console.log({ tabIds });
+
+    if (tabIds.length == 0) {
+      browser.tabs.create({ url: null, active: true });
+    } else {
+      browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
     }
-
-    const promises = tabs.map(tab => {
-      return browser.tabs.create({
-        url: tab.url,
-        active: tab.active,
-        cookieStoreId: tab.cookieStoreId,
-        windowId: this.windowId
-      });
-    });
-
-    await Promise.all(promises);
 
     this.hiddenTabs = [];
     this.active = true;
@@ -120,13 +113,13 @@ class Workspace {
     // We need to refresh the state because if the active workspace was switched we might have an old reference
     await this.refreshState();
 
-    if (this.active){
+    if (this.active) {
       // If the workspace is currently active, simply remove the tab.
       await browser.tabs.remove(tab.id);
     } else {
       // Otherwise, forget it from hiddenTabs
       const index = this.hiddenTabs.findIndex(hiddenTab => hiddenTab.id == tab.id);
-      if (index > -1){
+      if (index > -1) {
         this.hiddenTabs.splice(index, 1);
         await this.storeState();
       }
@@ -142,8 +135,8 @@ class Workspace {
     this.windowId = state.windowId;
 
     // For backwards compatibility
-    if (!this.windowId){
-      console.log("Backwards compatibility for",this.name);
+    if (!this.windowId) {
+      console.log("Backwards compatibility for", this.name);
       this.windowId = (await browser.windows.getCurrent()).id;
       await this.storeState();
     }

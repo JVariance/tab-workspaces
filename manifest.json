@@ -15,7 +15,8 @@
     "cookies",
     "menus",
     "storage",
-    "tabs"
+    "tabs",
+    "tabHide"
   ],
 
   "browser_action": {

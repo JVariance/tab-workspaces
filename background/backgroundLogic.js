@@ -1,15 +1,15 @@
 const BackgroundLogic = {
 
-  init(){
+  init() {
     BackgroundLogic.initializeListeners();
     BackgroundLogic.initializeContextMenu();
   },
 
-  initializeListeners(){
+  initializeListeners() {
     browser.windows.onRemoved.addListener(BackgroundLogic.tearDownWindow);
 
     browser.windows.onFocusChanged.addListener(windowId => {
-      if (windowId != browser.windows.WINDOW_ID_NONE){
+      if (windowId != browser.windows.WINDOW_ID_NONE) {
         BackgroundLogic.updateContextMenu();
       }
     });
@@ -21,14 +21,14 @@ const BackgroundLogic = {
     browser.omnibox.onInputEntered.addListener(BackgroundLogic.handleAwesomebarSelection);
   },
 
-  async getWorkspacesForCurrentWindow(){
+  async getWorkspacesForCurrentWindow() {
     return await BackgroundLogic.getWorkspacesForWindow(await BackgroundLogic.getCurrentWindowId());
   },
 
-  async getWorkspacesForWindow(windowId){
+  async getWorkspacesForWindow(windowId) {
     const workspaces = await WorkspaceStorage.fetchWorkspacesForWindow(windowId);
 
-    if (workspaces.length > 0){
+    if (workspaces.length > 0) {
       return workspaces;
     } else {
       const defaultWorkspace = await BackgroundLogic.createNewWorkspace(true);
@@ -43,7 +43,7 @@ const BackgroundLogic = {
     return workspaces.find(workspace => workspace.active);
   },
 
-  async createNewWorkspace(active){
+  async createNewWorkspace(active) {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const nextNumber = (await WorkspaceStorage.fetchWorkspacesCountForWindow(windowId)) + 1;
 
@@ -55,7 +55,7 @@ const BackgroundLogic = {
     return workspace;
   },
 
-  async createNewWorkspaceAndSwitch(active){
+  async createNewWorkspaceAndSwitch(active) {
     const workspace = await BackgroundLogic.createNewWorkspace(active);
     await BackgroundLogic.switchToWorkspace(workspace.id);
   },
@@ -66,14 +66,14 @@ const BackgroundLogic = {
     const oldWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const newWorkspace = await Workspace.find(workspaceId);
 
-    if (oldWorkspace.id == newWorkspace.id){
+    if (oldWorkspace.id == newWorkspace.id) {
       // Nothing to do here
       return;
     }
 
     // Since we're gonna be closing all open tabs, we need to show the new ones first.
     // However, we first need to prepare the old one, so it can tell which tabs were the original ones and which were opened by the new workspace.
-    await oldWorkspace.prepareToHide();
+    // await oldWorkspace.prepareToHide();
     await newWorkspace.show();
     await oldWorkspace.hide();
   },
@@ -92,7 +92,7 @@ const BackgroundLogic = {
     const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const workspaceToDelete = await Workspace.find(workspaceId);
 
-    if (currentWorkspace.id == workspaceId){
+    if (currentWorkspace.id == workspaceId) {
       const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
       await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
     }
@@ -116,7 +116,7 @@ const BackgroundLogic = {
       pinned: false
     });
 
-    if (tabsInCurrentWindow.length == 1){
+    if (tabsInCurrentWindow.length == 1) {
       await BackgroundLogic.switchToWorkspace(destinationWorkspace.id);
     }
 
@@ -179,7 +179,7 @@ const BackgroundLogic = {
   async handleContextMenuClick(menu, tab) {
     var destinationWorkspace;
 
-    if (menu.menuItemId.substring(0,3) == "new"){
+    if (menu.menuItemId.substring(0, 3) == "new") {
       destinationWorkspace = await BackgroundLogic.createNewWorkspace(false);
     } else {
       destinationWorkspace = await Workspace.find(menu.menuItemId);
@@ -188,15 +188,15 @@ const BackgroundLogic = {
     await BackgroundLogic.moveTabToWorkspace(tab, destinationWorkspace);
   },
 
-  async handleAwesomebarSearch(text, suggest){
+  async handleAwesomebarSearch(text, suggest) {
     suggest(await BackgroundLogic.searchTabs(text));
   },
 
-  async handleAwesomebarSelection(content, disposition){
+  async handleAwesomebarSelection(content, disposition) {
     let windowId, workspaceId, tabIndex;
     [windowId, workspaceId, tabIndex] = content.split(':');
 
-    await browser.windows.update(parseInt(windowId), {focused: true});
+    await browser.windows.update(parseInt(windowId), { focused: true });
 
     const workspace = await Workspace.find(workspaceId);
     await BackgroundLogic.switchToWorkspace(workspace.id);
@@ -206,23 +206,23 @@ const BackgroundLogic = {
       index: parseInt(tabIndex)
     });
 
-    if (matchedTabs.length > 0){
-      await browser.tabs.update(matchedTabs[0].id, {active: true});
+    if (matchedTabs.length > 0) {
+      await browser.tabs.update(matchedTabs[0].id, { active: true });
     }
   },
 
-  async searchTabs(text){
-    if (text.length < 3){
+  async searchTabs(text) {
+    if (text.length < 3) {
       return [];
     }
 
-    const windows = await browser.windows.getAll({windowTypes: ['normal']})
+    const windows = await browser.windows.getAll({ windowTypes: ['normal'] })
     const promises = windows.map(windowInfo => BackgroundLogic.searchTabsInWindow(text, windowInfo.id));
 
     return Util.flattenArray(await Promise.all(promises));
   },
 
-  async searchTabsInWindow(text, windowId){
+  async searchTabsInWindow(text, windowId) {
     const suggestions = [];
 
     const workspaces = await BackgroundLogic.getWorkspacesForWindow(windowId);

@@ -102,6 +102,11 @@ input#theme-switch:checked+label #moon-icon {
     left: -9999px;
 }
 
+#rename-icon,
+#delete-icon {
+    pointer-events: none;
+}
+
 @media (min-resolution: 1dppx) {
     html {
         font-size: 14px;
