@@ -1,6 +1,6 @@
 # Tab Workspaces
 
-<p class="callout info">This is a fork of <a href="https://addons.mozilla.org/de/firefox/addon/tab-workspaces/">Tab Workspaces</a> by <a href="https://github.com/fonse">Fonse</a></p>
+This is a fork of [Workspaces](https://addons.mozilla.org/de/firefox/addon/tab-workspaces/) by @fonse
 
 ## Improvements:
 
