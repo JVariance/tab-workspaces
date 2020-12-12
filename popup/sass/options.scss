@@ -1,0 +1,20 @@
+:root {
+    --main-color: #fff;
+    --secondary-color: #eeeeee;
+    --highlight-color: #e6e6e6;
+    --text-color: #111;
+}
+
+body[theme="dark"] {
+    --main-color: #2b2b2b;
+    --secondary-color: #3b3b3b;
+    --highlight-color: #636363;
+    --text-color: #fff;
+}
+
+body {
+    background-color: var(--main-color);
+    width: 100vw;
+    height: 100vh;
+    color: var(--text-color);
+}

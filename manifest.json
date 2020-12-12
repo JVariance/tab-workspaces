@@ -38,7 +38,7 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+E"
+        "default": "Ctrl+Alt+W"
       },
       "description": "Open workspace list"
     }
@@ -52,6 +52,11 @@
       "background/workspaceStorage.js",
       "background/messageHandler.js"
     ]
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
   },
 
   "omnibox": {
