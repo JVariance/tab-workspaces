@@ -2,9 +2,17 @@ const Logic = {
 
   workspaces: [],
 
+
   async init() {
     // We need the workspaces for rendering, so wait for this one
     await Logic.fetchWorkspaces();
+
+    browser.storage.local.get("workspacestheme").then((item) => {
+      document.body.setAttribute("theme", item.workspacestheme.name);
+      if (item.workspacestheme.name === "light") {
+        document.getElementById("theme-switch").checked = false;
+      }
+    }, (err) => console.log(err));
 
     Logic.renderWorkspacesList();
     Logic.renderWorkspacesEdit();
@@ -15,9 +23,16 @@ const Logic = {
     document.addEventListener("click", async e => {
       if (e.target.classList.contains("js-switch-theme")) {
         console.log(document.body.getAttribute("theme"));
-        document.getElementById("theme-switch").checked ? document.body.setAttribute("theme", "dark") : document.body.setAttribute("theme", "light");
+        let theme = document.getElementById("theme-switch").checked ? "dark" : "light";
+        document.body.setAttribute("theme", theme);
 
-        console.log(document.body.getAttribute("theme"));
+        let workspacestheme = {
+          name: theme
+        }
+
+        browser.storage.local.set({ workspacestheme }).then((item) => { console.log(item); }, (err) => console.log(err));
+
+        // console.log(document.body.getAttribute("theme"));
       } else if (e.target.classList.contains("js-switch-workspace")) {
         const workspaceId = e.target.dataset.workspaceId;
         Logic.callBackground("switchToWorkspace", {
@@ -151,11 +166,15 @@ const Logic = {
       const renameBtn = document.createElement("a");
       renameBtn.classList.add("edit-button", "edit-button-rename", "js-edit-workspace");
       renameBtn.href = "#";
+      const editIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
+      renameBtn.insertAdjacentHTML('beforeend', editIcon);
       li.appendChild(renameBtn);
 
       const deleteBtn = document.createElement("a");
       deleteBtn.classList.add("edit-button", "edit-button-delete", "js-delete-workspace");
       deleteBtn.href = "#";
+      const deleteIcon = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+      deleteBtn.insertAdjacentHTML('beforeend', deleteIcon);
       li.appendChild(deleteBtn);
 
       fragment.appendChild(li);
