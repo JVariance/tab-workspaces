@@ -44,7 +44,8 @@ class Workspace {
       // Not counting pinned tabs. Should we?
       const tabs = await browser.tabs.query({
         pinned: false,
-        windowId: this.windowId
+        windowId: this.windowId,
+        hidden: false
       });
 
       return tabs;
@@ -78,39 +79,19 @@ class Workspace {
     this.active = false;
     await this.storeState();
 
-    console.log("old, now hidden workspace");
-    console.log(this);
-
-    // const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
-    // const tabs = await browser.tabs.query({ windowId: this.windowId });
-    // const tabIds = tabs.map(tab => tab.id);
     const tabIds = this.hiddenTabs.map(tab => tab.id);
     console.log({ tabIds });
     await browser.tabs.hide(tabIds);
-    // await browser.tabs.remove(tabIds);
   }
 
   async show() {
-    // const tabs = this.hiddenTabs.filter(tab => Util.isPermissibleURL(tab.url));
-
-    console.log("show function - workspace.js");
-
-    console.log("new visible workspace");
-    console.log(this);
 
     const hiddenTabs = this.hiddenTabs;
-    // const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
-
-    console.log({ hiddenTabs });
-
     const tabIds = hiddenTabs?.map(tab => tab.id);
-
-    console.log({ tabIds });
 
     if (tabIds.length == 0) {
       browser.tabs.create({ url: null, active: true });
     } else {
-      // browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
       await browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
     }
 

@@ -165,7 +165,8 @@ ul {
   padding: 0 0 15px;
 }
 
-ul#workspace-list {
+ul#workspace-list,
+ul#workspace-edit {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
