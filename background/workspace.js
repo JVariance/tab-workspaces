@@ -18,6 +18,9 @@ class Workspace {
       windowId: windowId
     });
 
+    console.log("created Workspace: ");
+    console.log({ name, windowId });
+
     await workspace.storeState();
     await WorkspaceStorage.registerWorkspaceToWindow(windowId, workspace.id);
 
@@ -57,15 +60,31 @@ class Workspace {
     return obj;
   }
 
+  // Store hidden tabs in storage
+  async prepareToHide() {
+    const tabs = await browser.tabs.query({
+      windowId: this.windowId,
+      pinned: false,
+      hidden: false
+    });
+
+    tabs.forEach(tab => {
+      this.hiddenTabs.push(tab);
+    })
+  }
+
   // Hide tabs
   async hide() {
     this.active = false;
     await this.storeState();
 
-    console.log("hiding window id: " + this.windowId);
+    console.log("old, now hidden workspace");
+    console.log(this);
 
-    const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
-    const tabIds = hiddenTabs.map(tab => tab.id);
+    // const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
+    // const tabs = await browser.tabs.query({ windowId: this.windowId });
+    // const tabIds = tabs.map(tab => tab.id);
+    const tabIds = this.hiddenTabs.map(tab => tab.id);
     console.log({ tabIds });
     await browser.tabs.hide(tabIds);
     // await browser.tabs.remove(tabIds);
@@ -76,9 +95,11 @@ class Workspace {
 
     console.log("show function - workspace.js");
 
-    console.log("new window id: " + this.windowId);
+    console.log("new visible workspace");
+    console.log(this);
 
-    const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
+    const hiddenTabs = this.hiddenTabs;
+    // const hiddenTabs = await browser.tabs.query({ windowId: this.windowId, hidden: true });
 
     console.log({ hiddenTabs });
 
@@ -89,7 +110,8 @@ class Workspace {
     if (tabIds.length == 0) {
       browser.tabs.create({ url: null, active: true });
     } else {
-      browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
+      // browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
+      await browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
     }
 
     this.hiddenTabs = [];

@@ -66,16 +66,20 @@ const BackgroundLogic = {
     const oldWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const newWorkspace = await Workspace.find(workspaceId);
 
+    console.log("switchToWorkSpace: ");
+    console.log({ newWorkspace, workspaceId });
+
     if (oldWorkspace.id == newWorkspace.id) {
       // Nothing to do here
+      console.log("häää");
       return;
     }
 
     // Since we're gonna be closing all open tabs, we need to show the new ones first.
     // However, we first need to prepare the old one, so it can tell which tabs were the original ones and which were opened by the new workspace.
-    // await oldWorkspace.prepareToHide();
-    await newWorkspace.show();
+    await oldWorkspace.prepareToHide();
     await oldWorkspace.hide();
+    await newWorkspace.show();
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
