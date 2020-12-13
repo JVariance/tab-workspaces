@@ -33,3 +33,12 @@ This extension aims to be an alternative to [Tab Groups](https://addons.mozilla.
 This extension was inspired by [Multi-Account Containers](https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/), which also served as a reference for some of the functionality.
 
 Special thanks to [@NicolasJEngler](http://nicolasjengler.com.ar/) for designing a beautiful UI for this extension!
+
+## Development
+
+### Sass to CSS
+
+``` 
+
+sass --watch popup/sass:popup/css
+```

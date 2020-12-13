@@ -1,4 +1,4 @@
 web-ext-artifacts/
 .web-extension-id
-*.css
-*css.map
+**/**.css
+**/**.css.map
