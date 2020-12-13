@@ -93,6 +93,8 @@ class Workspace {
       browser.tabs.create({ url: null, active: true });
     } else {
       await browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
+      // let tabs = await browser.tabs.query({id:})
+      await browser.tabs.update(tabIds[0], { active: true });
     }
 
     this.hiddenTabs = [];
