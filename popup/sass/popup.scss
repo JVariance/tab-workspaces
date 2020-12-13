@@ -174,10 +174,13 @@ ul {
 ul#workspace-list,
 ul#workspace-edit {
     display: flex;
-    flex-wrap: wrap;
+    // flex-wrap: wrap;
     flex-direction: column;
     gap: 1rem;
     counter-reset: num;
+    max-height: 400px;
+    overflow: hidden scroll;
+    scrollbar-width: none;
 }
 
 li.workspace-list-entry,
@@ -193,10 +196,14 @@ li.workspace-edit-entry {
     position: relative;
     z-index: 1;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    // flex-wrap: wrap;
 
     &::before {
         counter-increment: num;
-        content: counter(num) ". ";
+        content: counter(num) ". ";
     }
 }
 
@@ -205,7 +212,7 @@ li.workspace-list-entry.active {
 }
 
 li.workspace-list-entry.active::after {
-    content: ' – active';
+    content: ' – active';
     color: var(--text-color);
     // color: #000;
 }
@@ -223,44 +230,65 @@ li.workspace-edit-entry {
 }
 
 
-li.workspace-edit-entry input {
+li.workspace-list-entry input {
+    display: block;
     width: 100%;
+    padding: 1rem;
+    // max-width: max-content;
     margin: 0;
     border: 0;
     font-size: 1em;
     font-family: inherit;
     color: var(--text-color);
+    position: absolute;
+    // top: 50%;
+    left: 0.7rem;
+    background: var(--secondary-color);
+    z-index: 2;
+    // transform: translate(0, calc(-50% + .5rem));
 }
 
-li.workspace-edit-entry input:disabled {
+li.workspace-list-entry input:disabled {
     color: var(--text-color);
     background: none;
+    display: none;
 }
 
-li.workspace-edit-entry a.edit-button {
+li.workspace-list-entry a.edit-button {
     position: absolute;
     top: 8px;
     height: 16px;
     width: 16px;
-}
-
-li.workspace-edit-entry a {
-    color: var(--text-color);
-}
-
-li.workspace-edit-entry a svg {
+    visibility: hidden;
     pointer-events: none;
 }
 
-li.workspace-edit-entry a.edit-button-rename {
+li.workspace-list-entry {
+    &:hover {
+        a.edit-button {
+            visibility: visible;
+            pointer-events: all;
+        }
+    }
+}
+
+li.workspace-list-entry a {
+    color: var(--text-color);
+}
+
+li.workspace-list-entry a svg {
+    pointer-events: none;
+}
+
+li.workspace-list-entry a.edit-button-rename {
+    right: 62px;
+}
+
+li.workspace-list-entry a.edit-button-delete {
     right: 36px;
 }
 
-li.workspace-edit-entry a.edit-button-delete {
-    right: 10px;
-}
-
-li:only-child.workspace-edit-entry a.edit-button-delete {
+li:only-child.workspace-list-entry a.edit-button-delete {
     opacity: 0.5;
 }
 
@@ -270,7 +298,7 @@ li:only-child.workspace-edit-entry a.edit-button-delete {
     border: none;
 }
 
-li.workspace-edit-entry {
+li.workspace-list-entry {
     &:hover {
         .js-edit-workspace-input {
             background: var(--highlight-color);
@@ -308,11 +336,13 @@ li.workspace-list-entry.active .tabs-qty {
     background: none;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 1rem;
 }
 
 .footer {
-    display: inline-block;
+    // display: inline-block;
+    display: flex;
     vertical-align: top;
     padding: 5px;
     padding-left: 1rem;
@@ -340,8 +370,17 @@ li.workspace-list-entry.active .tabs-qty {
 
 .js-new-workspace {
     max-width: 30px;
+    width: 100%;
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
     color: var(--text-color);
     background: var(--secondary-color);
+
+    svg {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 .footer:hover {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tab Workspaces",
-  "version": "1.2.0",
+  "version": "1.3.0",
 
   "description": "Organize your tabs into workspaces. Switch between workspaces to change which tabs are displayed at the moment.",
   "icons": {
@@ -16,7 +16,8 @@
     "menus",
     "storage",
     "tabs",
-    "tabHide"
+    "tabHide",
+    "sessions"
   ],
 
   "browser_action": {
@@ -61,5 +62,11 @@
 
   "omnibox": {
     "keyword": "ws"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabworkspaces@jayp.com"
+    }
   }
 }
