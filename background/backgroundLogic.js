@@ -78,8 +78,8 @@ const BackgroundLogic = {
     // Since we're gonna be closing all open tabs, we need to show the new ones first.
     // However, we first need to prepare the old one, so it can tell which tabs were the original ones and which were opened by the new workspace.
     await oldWorkspace.prepareToHide();
-    await oldWorkspace.hide();
     await newWorkspace.show();
+    await oldWorkspace.hide();
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
