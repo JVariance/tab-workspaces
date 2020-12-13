@@ -71,7 +71,6 @@ const BackgroundLogic = {
 
     if (oldWorkspace.id == newWorkspace.id) {
       // Nothing to do here
-      console.log("häää");
       return;
     }
 
