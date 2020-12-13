@@ -203,6 +203,7 @@ li.workspace-edit-entry input {
   border: 0;
   font-size: 1em;
   font-family: inherit;
+  color: var(--text-color);
 }
 
 li.workspace-edit-entry input:disabled {
