@@ -108,7 +108,8 @@ input#theme-switch:checked+label #moon-icon {
 }
 
 #rename-icon,
-#delete-icon {
+#delete-icon,
+#plus-icon {
     pointer-events: none;
 }
 
@@ -214,10 +215,8 @@ li.workspace-list-entry.active {
 li.workspace-list-entry.active .workspace-name::after {
     content: ' – active';
     color: var(--text-color);
-    // color: #000;
 }
 
-// li.workspace-list-entry:not(.active),
 li.workspace-list-entry {
     &:hover {
         background: var(--highlight-color);
@@ -245,27 +244,6 @@ li.workspace-list-entry:not(.edit-mode) {
         display: none;
     }
 }
-
-// li.workspace-list-entry input:focus {
-//     +a.edit-button {
-//         display: none;
-
-//         +a.edit-button {
-//             display: none;
-
-//             +.tabs-qty {
-//                 display: none;
-//             }
-//         }
-//     }
-// }
-
-// li.workspace-list-entry input:not(:focus) {
-//     // li.workspace-list-entry input:disabled {
-//     color: var(--text-color);
-//     background: none;
-//     display: none;
-// }
 
 li.workspace-list-entry input {
     display: block;

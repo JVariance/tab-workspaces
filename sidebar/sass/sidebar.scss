@@ -1,0 +1,33 @@
+@import '../../popup/sass/popup.scss';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    // width: calc(100vw - 16px);
+    width: 100vw;
+    height: auto;
+    box-shadow: none;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.js-new-workspace {
+    max-width: none;
+    height: 40px;
+    max-height: 40px;
+}
+
+ul#workspace-list {
+    min-height: unset;
+    max-height: calc(100vh - 110px);
+    overflow: hidden auto;
+    scrollbar-width: none;
+}
+
+#plus-icon {
+    pointer-events: none;
+}
