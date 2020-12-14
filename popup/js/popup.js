@@ -50,6 +50,7 @@ const Logic = {
 
       } else if (e.target.classList.contains("js-edit-workspace")) {
         // const input = e.target.parentNode.childNodes[0];
+        e.target.parentNode.classList.add("edit-mode");
         const input = e.target.parentNode.querySelector("input");
         input.disabled = false;
         input.focus();
@@ -88,6 +89,14 @@ const Logic = {
     //   }
     // });
 
+    document.addEventListener("mouseout", async e => {
+      if (e.target.classList.contains("js-edit-workspace-input")) {
+        e.target.disabled = true;
+        e.target.value = e.target.parentNode.querySelector(".workspace-name").textContent;
+        e.target.parentNode.classList.remove("edit-mode");
+      }
+    });
+
     document.addEventListener("change", async e => {
       if (e.target.classList.contains("js-edit-workspace-input")) {
         // Re-disable the input
@@ -108,15 +117,6 @@ const Logic = {
         // And re-render the list panel
         await Logic.fetchWorkspaces();
         Logic.renderWorkspacesList();
-      }
-    });
-
-    document.addEventListener("keydown", async e => {
-      console.log("taste gedrückt");
-      if (e.key === "Enter") {
-        if (document.activeElement.classList.contains("js-edit-workspace-input")) {
-          document.activeElement.disabled = true;
-        }
       }
     });
 
@@ -157,7 +157,11 @@ const Logic = {
       if (workspace.active) {
         li.classList.add("active");
       }
-      li.textContent = workspace.name;
+      const name = document.createElement("span");
+      name.classList.add("workspace-name");
+      li.appendChild(name);
+
+      name.textContent = workspace.name;
       li.dataset.workspaceId = workspace.id;
 
       const input = document.createElement("input");

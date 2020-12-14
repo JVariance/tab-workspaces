@@ -189,7 +189,7 @@ li.workspace-edit-entry {
     color: var(--text-color);
     padding: 10px;
     width: 100%;
-    height: max-content;
+    height: 40px;
     cursor: pointer;
     border-radius: 4px;
     font-size: .8em;
@@ -233,19 +233,29 @@ li.workspace-edit-entry {
 li.workspace-list-entry input {
     display: block;
     width: 100%;
-    padding: 1rem;
+    height: inherit;
+    // padding: 1rem;
     // max-width: max-content;
     margin: 0;
     border: 0;
     font-size: 1em;
     font-family: inherit;
     color: var(--text-color);
-    position: absolute;
+    // position: absolute;
     // top: 50%;
     left: 0.7rem;
     background: var(--secondary-color);
+    // background: red !important;
     z-index: 2;
     // transform: translate(0, calc(-50% + .5rem));
+}
+
+li.workspace-list-entry.edit-mode {
+
+    *:not(input):not(.tabs-qty),
+    &::after {
+        display: none;
+    }
 }
 
 li.workspace-list-entry input:disabled {
