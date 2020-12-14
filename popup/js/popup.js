@@ -50,10 +50,14 @@ const Logic = {
 
       } else if (e.target.classList.contains("js-edit-workspace")) {
         // const input = e.target.parentNode.childNodes[0];
+        console.log("edit clicked");
         e.target.parentNode.classList.add("edit-mode");
         const input = e.target.parentNode.querySelector("input");
+        // input.style.display = "block";
         input.disabled = false;
         input.focus();
+        // console.log(input);
+        // console.log(input === document.activeElement);
 
       } else if (e.target.classList.contains("js-delete-workspace")) {
         // Delete element
@@ -77,6 +81,12 @@ const Logic = {
       }
     });
 
+    document.addEventListener("focusout", async e => {
+      if (e.target.classList.contains("js-edit-workspace-input")) {
+        e.target.parentNode.classList.remove("edit-mode");
+      }
+    });
+
     // document.addEventListener("contextmenu", async e => {
     //   if (e.target.classList.contains("workspace-list-entry")) {
     //     let contextMenu = document.createElement("div"),
@@ -89,13 +99,13 @@ const Logic = {
     //   }
     // });
 
-    document.addEventListener("mouseout", async e => {
-      if (e.target.classList.contains("js-edit-workspace-input")) {
-        e.target.disabled = true;
-        e.target.value = e.target.parentNode.querySelector(".workspace-name").textContent;
-        e.target.parentNode.classList.remove("edit-mode");
-      }
-    });
+    // document.addEventListener("mouseout", async e => {
+    //   if (e.target.classList.contains("js-edit-workspace-input")) {
+    //     e.target.disabled = true;
+    //     e.target.value = e.target.parentNode.querySelector(".workspace-name").textContent;
+    //     e.target.parentNode.classList.remove("edit-mode");
+    //   }
+    // });
 
     document.addEventListener("change", async e => {
       if (e.target.classList.contains("js-edit-workspace-input")) {
@@ -104,7 +114,6 @@ const Logic = {
 
         console.log({ name });
 
-        // name = name === "" ? "pups" : name;
         e.target.disabled = true;
 
         // Save new name
@@ -118,6 +127,10 @@ const Logic = {
         await Logic.fetchWorkspaces();
         Logic.renderWorkspacesList();
       }
+    });
+
+    document.addEventListener("blur", async e => {
+      console.log(e.target);
     });
 
     // This focus is needed to capture key presses without user interaction

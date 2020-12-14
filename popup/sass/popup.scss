@@ -208,9 +208,10 @@ li.workspace-list-entry {
 
 li.workspace-list-entry.active {
     cursor: default;
+    font-weight: 700;
 }
 
-li.workspace-list-entry.active::after {
+li.workspace-list-entry.active .workspace-name::after {
     content: ' – active';
     color: var(--text-color);
     // color: #000;
@@ -227,6 +228,44 @@ li.workspace-list-entry {
     }
 }
 
+li.workspace-list-entry .workspace-name {
+    pointer-events: none;
+}
+
+li.workspace-list-entry.edit-mode {
+
+    *:not(input):not(.tabs-qty),
+    &::after {
+        display: none;
+    }
+}
+
+li.workspace-list-entry:not(.edit-mode) {
+    input {
+        display: none;
+    }
+}
+
+// li.workspace-list-entry input:focus {
+//     +a.edit-button {
+//         display: none;
+
+//         +a.edit-button {
+//             display: none;
+
+//             +.tabs-qty {
+//                 display: none;
+//             }
+//         }
+//     }
+// }
+
+// li.workspace-list-entry input:not(:focus) {
+//     // li.workspace-list-entry input:disabled {
+//     color: var(--text-color);
+//     background: none;
+//     display: none;
+// }
 
 li.workspace-list-entry input {
     display: block;
@@ -241,21 +280,9 @@ li.workspace-list-entry input {
     left: 0.7rem;
     background: var(--secondary-color);
     z-index: 2;
+    outline: none;
 }
 
-li.workspace-list-entry.edit-mode {
-
-    *:not(input):not(.tabs-qty),
-    &::after {
-        display: none;
-    }
-}
-
-li.workspace-list-entry input:disabled {
-    color: var(--text-color);
-    background: none;
-    display: none;
-}
 
 li.workspace-list-entry a.edit-button {
     position: absolute;
