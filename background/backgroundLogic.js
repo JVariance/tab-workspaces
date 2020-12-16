@@ -56,11 +56,15 @@ const BackgroundLogic = {
   },
 
   async createNewWorkspaceAndSwitch(active) {
+    console.log({ active });
     const workspace = await BackgroundLogic.createNewWorkspace(active);
     await BackgroundLogic.switchToWorkspace(workspace.id);
   },
 
   async switchToWorkspace(workspaceId) {
+
+    console.log({ workspaceId });
+
     const windowId = await BackgroundLogic.getCurrentWindowId();
 
     const oldWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);

@@ -1,10 +1,10 @@
-const Logic = {
+const SidebarLogic = {
 
     workspaces: [],
 
     async init() {
         // We need the workspaces for rendering, so wait for this one
-        await Logic.fetchWorkspaces();
+        await SidebarLogic.fetchWorkspaces();
 
         browser.storage.local.get("workspacestheme").then((item) => {
             document.body.setAttribute("theme", item.workspacestheme.name);
@@ -13,12 +13,13 @@ const Logic = {
             }
         }, (err) => console.log(err));
 
-        Logic.renderWorkspacesList();
-        Logic.registerEventListeners();
+        SidebarLogic.renderWorkspacesList();
+        SidebarLogic.registerEventListeners();
     },
 
     registerEventListeners() {
         document.addEventListener("click", async e => {
+
             if (e.target.classList.contains("js-switch-theme")) {
                 let theme = document.getElementById("theme-switch").checked ? "dark" : "light";
                 document.body.setAttribute("theme", theme);
@@ -31,17 +32,16 @@ const Logic = {
 
             } else if (e.target.classList.contains("js-switch-workspace")) {
                 const workspaceId = e.target.dataset.workspaceId;
-                Logic.callBackground("switchToWorkspace", {
+                SidebarLogic.callBackground("switchToWorkspace", {
                     workspaceId: workspaceId
                 });
 
-                //window.close();
-
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
                 console.log("Workspace hinzugefügt!");
-                Logic.callBackground("createNewWorkspaceAndSwitch");
+                await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
 
-                //window.close();
+                await SidebarLogic.fetchWorkspaces().then(function (res) { console.log(res); });
+                await SidebarLogic.renderWorkspacesList();
 
             } else if (e.target.classList.contains("js-switch-panel")) {
                 document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
@@ -65,13 +65,15 @@ const Logic = {
                 li.parentNode.removeChild(li);
 
                 // Delete the workspace
-                await Logic.callBackground("deleteWorkspace", {
+                await SidebarLogic.callBackground("deleteWorkspace", {
                     workspaceId: workspaceId
                 });
 
                 // And re-render the list panel
-                await Logic.fetchWorkspaces();
-                Logic.renderWorkspacesList();
+                // await SidebarLogic.fetchWorkspaces();
+                // SidebarLogic.renderWorkspacesList();
+                // browser.runtime.reload();
+                // browser.sidebarAction.close();
             }
         });
 
@@ -89,14 +91,14 @@ const Logic = {
 
                 // Save new name
                 const workspaceId = e.target.parentNode.dataset.workspaceId;
-                await Logic.callBackground("renameWorkspace", {
+                await SidebarLogic.callBackground("renameWorkspace", {
                     workspaceId: workspaceId,
                     workspaceName: name
                 });
 
                 // And re-render the list panel
-                await Logic.fetchWorkspaces();
-                Logic.renderWorkspacesList();
+                await SidebarLogic.fetchWorkspaces();
+                SidebarLogic.renderWorkspacesList();
             }
         });
 
@@ -113,11 +115,9 @@ const Logic = {
 
                 const el = document.querySelector(`#workspace-list li:nth-child(${index})`);
                 if (el) {
-                    Logic.callBackground("switchToWorkspace", {
+                    SidebarLogic.callBackground("switchToWorkspace", {
                         workspaceId: el.dataset.workspaceId
                     });
-
-                    //window.close();
                 }
             }
 
@@ -125,7 +125,12 @@ const Logic = {
     },
 
     async fetchWorkspaces() {
-        this.workspaces = await Logic.callBackground("getWorkspacesForCurrentWindow");
+        // let self = this;
+        // setTimeout(async function () {
+        this.workspaces = await SidebarLogic.callBackground("getWorkspacesForCurrentWindow");
+        // }, 500);
+
+        return this.workspaces;
     },
 
     async renderWorkspacesList() {
@@ -178,6 +183,8 @@ const Logic = {
         const list = document.querySelector("#workspace-list");
         list.innerHTML = '';
         list.appendChild(fragment);
+
+        // return fragment;
     },
 
     async callBackground(method, args) {
@@ -189,7 +196,6 @@ const Logic = {
             return BackgroundMock.sendMessage(message);
         }
     }
-
 }
 
-Logic.init();
+SidebarLogic.init();

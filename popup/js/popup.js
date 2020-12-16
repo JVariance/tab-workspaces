@@ -36,13 +36,12 @@ const Logic = {
           workspaceId: workspaceId
         });
 
-        // window.close();
+        window.close();
 
       } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
         console.log("Workspace hinzugefügt!");
         Logic.callBackground("createNewWorkspaceAndSwitch");
-
-        // window.close();
+        window.close();
 
       } else if (e.target.classList.contains("js-switch-panel")) {
         document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
@@ -73,6 +72,7 @@ const Logic = {
         // And re-render the list panel
         await Logic.fetchWorkspaces();
         Logic.renderWorkspacesList();
+        // window.close
       }
     });
 
@@ -118,7 +118,7 @@ const Logic = {
             workspaceId: el.dataset.workspaceId
           });
 
-          // window.close();
+          window.close();
         }
       }
 
