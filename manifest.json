@@ -75,5 +75,9 @@
     "gecko": {
       "id": "tabworkspaces@jayp.com"
     }
-  }
+  },
+  "web_accessible_resources": [
+    "sidebar/sidebar.html",
+    "sidebar/js/sidebar.js"
+  ]
 }

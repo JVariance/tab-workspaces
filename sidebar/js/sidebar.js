@@ -37,11 +37,13 @@ const SidebarLogic = {
                 });
 
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
-                console.log("Workspace hinzugefügt!");
-                await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
+                const newWorkspace = await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
 
-                await SidebarLogic.fetchWorkspaces().then(function (res) { console.log(res); });
-                await SidebarLogic.renderWorkspacesList();
+                console.log(newWorkspace);
+
+                await SidebarLogic.fetchWorkspaces();
+                await SidebarLogic.addToWorkspacesList(newWorkspace);
+                // await SidebarLogic.renderWorkspacesList();
 
             } else if (e.target.classList.contains("js-switch-panel")) {
                 document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
@@ -68,12 +70,6 @@ const SidebarLogic = {
                 await SidebarLogic.callBackground("deleteWorkspace", {
                     workspaceId: workspaceId
                 });
-
-                // And re-render the list panel
-                // await SidebarLogic.fetchWorkspaces();
-                // SidebarLogic.renderWorkspacesList();
-                // browser.runtime.reload();
-                // browser.sidebarAction.close();
             }
         });
 
@@ -125,66 +121,26 @@ const SidebarLogic = {
     },
 
     async fetchWorkspaces() {
-        // let self = this;
-        // setTimeout(async function () {
         this.workspaces = await SidebarLogic.callBackground("getWorkspacesForCurrentWindow");
-        // }, 500);
-
-        return this.workspaces;
     },
 
     async renderWorkspacesList() {
         const fragment = document.createDocumentFragment();
 
         this.workspaces.forEach(workspace => {
-            const li = document.createElement("li");
-            li.classList.add("workspace-list-entry", "js-switch-workspace");
-            if (workspace.active) {
-                li.classList.add("active");
-            }
-            const name = document.createElement("span");
-            name.classList.add("workspace-name");
-            li.appendChild(name);
-
-            name.textContent = workspace.name;
-            li.dataset.workspaceId = workspace.id;
-
-            const input = document.createElement("input");
-            input.classList.add("js-edit-workspace-input");
-            input.type = "text";
-            input.value = workspace.name;
-            input.minLength = 1;
-            input.maxLength = 20;
-            input.disabled = true;
-            li.appendChild(input);
-
-            const renameBtn = document.createElement("a");
-            renameBtn.classList.add("edit-button", "edit-button-rename", "js-edit-workspace");
-            renameBtn.href = "#";
-            const editIcon = `<svg id="rename-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
-            renameBtn.insertAdjacentHTML('beforeend', editIcon);
-            li.appendChild(renameBtn);
-
-            const deleteBtn = document.createElement("a");
-            deleteBtn.classList.add("edit-button", "edit-button-delete", "js-delete-workspace");
-            deleteBtn.href = "#";
-            const deleteIcon = `<svg id="delete-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
-            deleteBtn.insertAdjacentHTML('beforeend', deleteIcon);
-            li.appendChild(deleteBtn);
-
-            const span = document.createElement("span");
-            span.classList.add("tabs-qty");
-            span.textContent = workspace.tabCount;
-            li.appendChild(span);
-
+            const li = this.createListItem(workspace);
             fragment.appendChild(li);
         });
 
         const list = document.querySelector("#workspace-list");
         list.innerHTML = '';
         list.appendChild(fragment);
+    },
 
-        // return fragment;
+    async addToWorkspacesList(workspace) {
+        const list = document.querySelector("#workspace-list");
+        const listItem = this.createListItem(workspace);
+        list.appendChild(listItem);
     },
 
     async callBackground(method, args) {
@@ -195,6 +151,50 @@ const SidebarLogic = {
         } else {
             return BackgroundMock.sendMessage(message);
         }
+    },
+
+    createListItem(workspace) {
+        const li = document.createElement("li");
+        li.classList.add("workspace-list-entry", "js-switch-workspace");
+        if (workspace.active) {
+            li.classList.add("active");
+        }
+        const name = document.createElement("span");
+        name.classList.add("workspace-name");
+        li.appendChild(name);
+
+        name.textContent = workspace.name;
+        li.dataset.workspaceId = workspace.id;
+
+        const input = document.createElement("input");
+        input.classList.add("js-edit-workspace-input");
+        input.type = "text";
+        input.value = workspace.name;
+        input.minLength = 1;
+        input.maxLength = 20;
+        input.disabled = true;
+        li.appendChild(input);
+
+        const renameBtn = document.createElement("a");
+        renameBtn.classList.add("edit-button", "edit-button-rename", "js-edit-workspace");
+        renameBtn.href = "#";
+        const editIcon = `<svg id="rename-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
+        renameBtn.insertAdjacentHTML('beforeend', editIcon);
+        li.appendChild(renameBtn);
+
+        const deleteBtn = document.createElement("a");
+        deleteBtn.classList.add("edit-button", "edit-button-delete", "js-delete-workspace");
+        deleteBtn.href = "#";
+        const deleteIcon = `<svg id="delete-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+        deleteBtn.insertAdjacentHTML('beforeend', deleteIcon);
+        li.appendChild(deleteBtn);
+
+        const span = document.createElement("span");
+        span.classList.add("tabs-qty");
+        span.textContent = workspace.tabCount;
+        li.appendChild(span);
+
+        return li;
     }
 }
 

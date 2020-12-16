@@ -15,7 +15,10 @@ const BackgroundLogic = {
     });
 
     browser.tabs.onCreated.addListener(BackgroundLogic.updateContextMenu);
+    // browser.tabs.onCreated.addListener(BackgroundLogic.updateTabsCount);
     browser.tabs.onRemoved.addListener(BackgroundLogic.updateContextMenu);
+    // browser.tabs.onRemoved.addListener(BackgroundLogic.handleRemovedTabs);
+    // browser.tabs.onRemoved.addListener(BackgroundLogic.updateTabsCount);
 
     browser.omnibox.onInputChanged.addListener(BackgroundLogic.handleAwesomebarSearch);
     browser.omnibox.onInputEntered.addListener(BackgroundLogic.handleAwesomebarSelection);
@@ -37,10 +40,26 @@ const BackgroundLogic = {
     }
   },
 
+  // async handleRemovedTabs() {
+  //   console.log("handle bambandle");
+  //   await BackgroundLogic.updateContextMenu();
+  //   await BackgroundLogic.updateTabsCount();
+  // },
+
   async getCurrentWorkspaceForWindow(windowId) {
     const workspaces = await BackgroundLogic.getWorkspacesForWindow(windowId);
 
     return workspaces.find(workspace => workspace.active);
+  },
+
+  async updateTabsCount() {
+    const windowId = await BackgroundLogic.getCurrentWindowId();
+    const activeWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
+    const tabCount = await activeWorkspace.getTabs();
+    const tabCountLength = tabCount.length;
+    let view = await browser.extension.getViews({ type: "sidebar" });
+    view = view[0];
+    view.document.querySelector(".workspace-list-entry.active .tabs-qty").textContent = tabCountLength;
   },
 
   async createNewWorkspace(active) {
@@ -59,7 +78,15 @@ const BackgroundLogic = {
     console.log({ active });
     const workspace = await BackgroundLogic.createNewWorkspace(active);
     await BackgroundLogic.switchToWorkspace(workspace.id);
+
+    console.log(workspace);
+
+    return await workspace.toObject();
   },
+
+  // async getNewWorkspace(){
+
+  // },
 
   async switchToWorkspace(workspaceId) {
 
@@ -181,6 +208,7 @@ const BackgroundLogic = {
   updateContextMenu: Util.debounce(async () => {
     await browser.menus.removeAll();
     await BackgroundLogic.initializeContextMenu();
+    await BackgroundLogic.updateTabsCount();
   }, 250),
 
   async handleContextMenuClick(menu, tab) {
