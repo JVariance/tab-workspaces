@@ -31,10 +31,14 @@ const SidebarLogic = {
                 browser.storage.local.set({ workspacestheme }).then((item) => { console.log(item); }, (err) => console.log(err));
 
             } else if (e.target.classList.contains("js-switch-workspace")) {
+
                 const workspaceId = e.target.dataset.workspaceId;
-                SidebarLogic.callBackground("switchToWorkspace", {
+                await SidebarLogic.callBackground("switchToWorkspace", {
                     workspaceId: workspaceId
                 });
+
+                document.querySelector(".js-switch-workspace.active").classList.remove("active");
+                document.querySelector(`#ws-${workspaceId}`).classList.add("active");
 
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
                 const newWorkspace = await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
@@ -42,8 +46,8 @@ const SidebarLogic = {
                 console.log(newWorkspace);
 
                 await SidebarLogic.fetchWorkspaces();
-                await SidebarLogic.addToWorkspacesList(newWorkspace);
-                // await SidebarLogic.renderWorkspacesList();
+                // await SidebarLogic.addToWorkspacesList(newWorkspace);
+                await SidebarLogic.renderWorkspacesList();
 
             } else if (e.target.classList.contains("js-switch-panel")) {
                 document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
@@ -154,7 +158,13 @@ const SidebarLogic = {
     },
 
     createListItem(workspace) {
+
+        console.log("createListItem");
+        console.log({ workspace });
+        console.log(workspace.active);
+
         const li = document.createElement("li");
+        li.id = `ws-${workspace.id}`;
         li.classList.add("workspace-list-entry", "js-switch-workspace");
         if (workspace.active) {
             li.classList.add("active");

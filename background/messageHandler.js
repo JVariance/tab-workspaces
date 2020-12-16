@@ -11,10 +11,6 @@ browser.runtime.onMessage.addListener(async m => {
       await BackgroundLogic.switchToWorkspace(m.workspaceId);
       break;
 
-    // case "getNewWorkspace":
-    //   await BackgroundLogic.getNewWorkspace();
-    //   break;
-
     case "createNewWorkspaceAndSwitch":
       const workspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
       return workspace;

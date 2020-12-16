@@ -15,10 +15,7 @@ const BackgroundLogic = {
     });
 
     browser.tabs.onCreated.addListener(BackgroundLogic.updateContextMenu);
-    // browser.tabs.onCreated.addListener(BackgroundLogic.updateTabsCount);
     browser.tabs.onRemoved.addListener(BackgroundLogic.updateContextMenu);
-    // browser.tabs.onRemoved.addListener(BackgroundLogic.handleRemovedTabs);
-    // browser.tabs.onRemoved.addListener(BackgroundLogic.updateTabsCount);
 
     browser.omnibox.onInputChanged.addListener(BackgroundLogic.handleAwesomebarSearch);
     browser.omnibox.onInputEntered.addListener(BackgroundLogic.handleAwesomebarSelection);
@@ -39,12 +36,6 @@ const BackgroundLogic = {
       return [defaultWorkspace];
     }
   },
-
-  // async handleRemovedTabs() {
-  //   console.log("handle bambandle");
-  //   await BackgroundLogic.updateContextMenu();
-  //   await BackgroundLogic.updateTabsCount();
-  // },
 
   async getCurrentWorkspaceForWindow(windowId) {
     const workspaces = await BackgroundLogic.getWorkspacesForWindow(windowId);
@@ -80,13 +71,10 @@ const BackgroundLogic = {
     await BackgroundLogic.switchToWorkspace(workspace.id);
 
     console.log(workspace);
+    // workspace.active = true;
 
     return await workspace.toObject();
   },
-
-  // async getNewWorkspace(){
-
-  // },
 
   async switchToWorkspace(workspaceId) {
 
