@@ -229,8 +229,14 @@ const BackgroundLogic = {
       default:
         break;
     }
+
+    let sidebar = await browser.extension.getViews({ type: "sidebar" });
+    sidebar = sidebar[0];
+
     BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
     BackgroundLogic.updateContextMenu();
+    sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
+    sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
   },
 
   async handleAwesomebarSearch(text, suggest) {
