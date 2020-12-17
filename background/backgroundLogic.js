@@ -19,6 +19,8 @@ const BackgroundLogic = {
 
     browser.omnibox.onInputChanged.addListener(BackgroundLogic.handleAwesomebarSearch);
     browser.omnibox.onInputEntered.addListener(BackgroundLogic.handleAwesomebarSelection);
+
+    browser.commands.onCommand.addListener(BackgroundLogic.handleCommands);
   },
 
   async getWorkspacesForCurrentWindow() {
@@ -76,8 +78,9 @@ const BackgroundLogic = {
     return await workspace.toObject();
   },
 
-  async switchToWorkspace(workspaceId) {
+  async switchToWorkspace(workspaceId, args) {
 
+    console.log({ args });
     console.log({ workspaceId });
 
     const windowId = await BackgroundLogic.getCurrentWindowId();
@@ -88,7 +91,7 @@ const BackgroundLogic = {
     console.log("switchToWorkSpace: ");
     console.log({ newWorkspace, workspaceId });
 
-    if (oldWorkspace.id == newWorkspace.id) {
+    if (oldWorkspace.id == newWorkspace.id && args.commandBased === true) {
       // Nothing to do here
       return;
     }
@@ -209,6 +212,25 @@ const BackgroundLogic = {
     }
 
     await BackgroundLogic.moveTabToWorkspace(tab, destinationWorkspace);
+  },
+
+  async handleCommands(command) {
+    const windowId = await BackgroundLogic.getCurrentWindowId();
+    const workspaces = await WorkspaceStorage.fetchWorkspacesForWindow(windowId);
+    const activeWorkspace = workspaces.find(ws => ws.active === true);
+    let nextWorkspace;
+    switch (command) {
+      case "next-workspace":
+        nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) + 1)];
+        break;
+      case "previous-workspace":
+        nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
+        break;
+      default:
+        break;
+    }
+    BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
+    BackgroundLogic.updateContextMenu();
   },
 
   async handleAwesomebarSearch(text, suggest) {

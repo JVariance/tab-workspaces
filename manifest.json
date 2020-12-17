@@ -49,6 +49,24 @@
         "default": "Ctrl+Alt+W"
       },
       "description": "Open workspace list"
+    },
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+Q"
+      },
+      "description": "Open workspace sidebar"
+    },
+    "next-workspace": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+C"
+      },
+      "description": "Next workspace"
+    },
+    "previous-workspace": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+X"
+      },
+      "description": "Previous workspace"
     }
   },
 
