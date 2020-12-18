@@ -131,6 +131,8 @@ const SidebarLogic = {
     async renderWorkspacesList() {
         const fragment = document.createDocumentFragment();
 
+        console.log("renderWorkspacesList()");
+
         this.workspaces.forEach(workspace => {
             const li = this.createListItem(workspace);
             fragment.appendChild(li);

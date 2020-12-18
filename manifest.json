@@ -67,6 +67,12 @@
         "default": "Ctrl+Alt+X"
       },
       "description": "Previous workspace"
+    },
+    "create-workspace": {
+      "suggested_key": {
+        "default": "Ctrl+Alt+A"
+      },
+      "description": "Create workspace"
     }
   },
 
