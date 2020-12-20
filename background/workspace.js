@@ -89,6 +89,8 @@ class Workspace {
     const hiddenTabs = this.hiddenTabs;
     const tabIds = hiddenTabs?.map(tab => tab.id);
 
+    console.log({ tabIds });
+
     if (tabIds.length == 0) {
       browser.tabs.create({ url: null, active: true });
     } else {
@@ -110,6 +112,7 @@ class Workspace {
   async attachTab(tab) {
     this.hiddenTabs.push(tab);
 
+    await browser.tabs.show(tab.id);
     await this.storeState();
   }
 
@@ -119,7 +122,8 @@ class Workspace {
 
     if (this.active) {
       // If the workspace is currently active, simply remove the tab.
-      await browser.tabs.remove(tab.id);
+      // await browser.tabs.remove(tab.id);
+      await browser.tabs.hide(tab.id);
     } else {
       // Otherwise, forget it from hiddenTabs
       const index = this.hiddenTabs.findIndex(hiddenTab => hiddenTab.id == tab.id);
