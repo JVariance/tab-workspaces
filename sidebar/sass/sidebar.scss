@@ -31,3 +31,7 @@ ul#workspace-list {
 #plus-icon {
     pointer-events: none;
 }
+
+li.workspace-list-entry.active {
+    pointer-events: all;
+}

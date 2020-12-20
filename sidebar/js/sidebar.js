@@ -32,6 +32,10 @@ const SidebarLogic = {
 
             } else if (e.target.classList.contains("js-switch-workspace")) {
 
+                if (e.target.classList.contains("active")) {
+                    return;
+                }
+
                 const workspaceId = e.target.dataset.workspaceId;
                 await SidebarLogic.callBackground("switchToWorkspace", {
                     workspaceId: workspaceId

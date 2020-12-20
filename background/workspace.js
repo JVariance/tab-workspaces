@@ -54,6 +54,10 @@ class Workspace {
     }
   }
 
+  async getHighlightedTabs() {
+    return await browser.tabs.query({ highlighted: true });
+  }
+
   async toObject() {
     const obj = Object.assign({}, this);
     obj.tabCount = (await this.getTabs()).length;
@@ -110,6 +114,7 @@ class Workspace {
   }
 
   async attachTab(tab) {
+
     this.hiddenTabs.push(tab);
 
     await browser.tabs.show(tab.id);

@@ -39,6 +39,11 @@ const BackgroundLogic = {
     }
   },
 
+  async getView(type) {
+    const view = await browser.extension.getViews({ type });
+    return view[0];
+  },
+
   async getCurrentWorkspaceForWindow(windowId) {
     const workspaces = await BackgroundLogic.getWorkspacesForWindow(windowId);
 
@@ -51,10 +56,9 @@ const BackgroundLogic = {
 
     const tabCount = await activeWorkspace.getTabs();
     const tabCountLength = tabCount.length;
-    let view = await browser.extension.getViews({ type: "sidebar" });
-    view = view[0];
-    if (view.document.querySelector(".workspace-list-entry.active")) {
-      view.document.querySelector(".workspace-list-entry.active .tabs-qty").textContent = tabCountLength;
+    const sidebar = await BackgroundLogic.getView("sidebar");
+    if (sidebar.document.querySelector(".workspace-list-entry.active")) {
+      sidebar.document.querySelector(".workspace-list-entry.active .tabs-qty").textContent = tabCountLength;
     }
   },
 
@@ -132,12 +136,27 @@ const BackgroundLogic = {
     BackgroundLogic.updateContextMenu();
   },
 
-  async moveTabToWorkspace(tab, destinationWorkspace) {
+  async moveTabToWorkspace(tabs, clickedTab, destinationWorkspace) {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     let currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
 
+    console.log({ clickedTab });
+
+    let newActiveTab = await currentWorkspace.getTabs();
+    // newActiveTab = newActiveTab.filter(tab => tab.highlighted === false && tab.id !== clickedTab.id).pop();
+    newActiveTab = newActiveTab.filter(tab => tab.highlighted === false && tab.id !== clickedTab.id);
+    newActiveTab = clickedTab.active === true ? newActiveTab.filter(tab => tab.active === false).pop() : newActiveTab.pop();
+    console.log({ newActiveTab });
+    // newActiveTab.active = true;
+    // console.log(currentTabs[]);
+
     // Attach tab to destination workspace
-    await destinationWorkspace.attachTab(tab);
+    // tabs.forEach(tab => await destinationWorkspace.attachTab(tab));
+    // await Promise.all();
+    // tabs.forEach(tab => await destinationWorkspace.attachTab(tab));
+    await Promise.all(tabs.map(tab => destinationWorkspace.attachTab(tab)));
+
+    browser.tabs.update(newActiveTab.id, { active: true });
 
     // If this is the last tab of the window, we need to switch workspaces
     const tabsInCurrentWindow = await browser.tabs.query({
@@ -150,10 +169,11 @@ const BackgroundLogic = {
     }
 
     // Finally, detach tab from source workspace
-    await currentWorkspace.detachTab(tab);
+    // await currentWorkspace.detachTab(tab);
+    // tabs.forEach(tab => await currentWorkspace.detachTab(tab));
+    await Promise.all(tabs.map(tab => currentWorkspace.detachTab(tab)));
 
-    let sidebar = await browser.extension.getViews({ type: "sidebar" });
-    sidebar = sidebar[0];
+    const sidebar = await BackgroundLogic.getView("sidebar");
 
     currentWorkspace = await currentWorkspace.toObject();
     destinationWorkspace = await destinationWorkspace.toObject();
@@ -186,7 +206,8 @@ const BackgroundLogic = {
 
     const workspaces = await BackgroundLogic.getWorkspacesForCurrentWindow();
     const workspaceObjects = await Promise.all(workspaces.map(workspace => workspace.toObject()));
-    workspaceObjects.forEach(workspace => {
+    workspaceObjects.forEach(async (workspace, index) => {
+
       browser.menus.create({
         title: `${workspace.name} (${workspace.tabCount} tabs)`,
         parentId: menuId,
@@ -215,24 +236,26 @@ const BackgroundLogic = {
     await BackgroundLogic.updateTabsCount();
   }, 250),
 
-  async handleContextMenuClick(menu, tab) {
-    var destinationWorkspace;
+  async handleContextMenuClick(menu, clickedTab) {
+    var destinationWorkspace, tabs;
 
     console.log({ menu });
     console.log(menu.menuItemId);
 
     if (menu.menuItemId.substring(0, 3) == "new") {
       destinationWorkspace = await BackgroundLogic.createNewWorkspace(false);
-      let sidebar = await browser.extension.getViews({ type: "sidebar" });
-      sidebar = sidebar[0];
+      const sidebar = await BackgroundLogic.getView("sidebar");
       await BackgroundLogic.addToWorkspacesList(sidebar, destinationWorkspace, { "switch": false });
     } else {
       destinationWorkspace = await Workspace.find(menu.menuItemId);
     }
 
-    console.log({ tab, destinationWorkspace });
+    tabs = await destinationWorkspace.getHighlightedTabs();
 
-    await BackgroundLogic.moveTabToWorkspace(tab, destinationWorkspace);
+    console.log({ tabs, destinationWorkspace });
+
+    // await BackgroundLogic.moveTabToWorkspace(tab, destinationWorkspace);
+    await BackgroundLogic.moveTabToWorkspace(tabs, clickedTab, destinationWorkspace);
   },
 
   async handleCommands(command) {
@@ -258,8 +281,7 @@ const BackgroundLogic = {
     }
 
 
-    let sidebar = await browser.extension.getViews({ type: "sidebar" });
-    sidebar = sidebar[0];
+    const sidebar = await BackgroundLogic.getView("sidebar");
 
     if (!create) {
       BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
