@@ -2,20 +2,28 @@ class Workspace {
   constructor(id, state) {
     this.id = id;
 
+    console.log("create Workspace");
+    console.log({ state });
+
     if (state) {
       this.name = state.name;
       this.active = state.active;
       this.hiddenTabs = state.hiddenTabs;
       this.windowId = state.windowId;
+      this.lastTabGetsClosedNext = state.lastTabGetsClosedNext;
     }
   }
 
-  static async create(windowId, name, active) {
+  static async create(windowId, name, active, lastTabGetsClosedNext) {
+    console.log(lastTabGetsClosedNext);
+    lastTabGetsClosedNext = lastTabGetsClosedNext === undefined ? true : lastTabGetsClosedNext;
+    console.log(lastTabGetsClosedNext);
     const workspace = new Workspace(Util.generateUUID(), {
-      name: name,
+      name,
       active: active || false,
       hiddenTabs: [],
-      windowId: windowId
+      windowId,
+      lastTabGetsClosedNext: lastTabGetsClosedNext
     });
 
     console.log("created Workspace: ");
@@ -146,6 +154,7 @@ class Workspace {
     this.active = state.active;
     this.hiddenTabs = state.hiddenTabs;
     this.windowId = state.windowId;
+    this.lastTabGetsClosedNext = state.lastTabGetsClosedNext;
 
     // For backwards compatibility
     if (!this.windowId) {
@@ -160,7 +169,8 @@ class Workspace {
       name: this.name,
       active: this.active,
       hiddenTabs: this.hiddenTabs,
-      windowId: this.windowId
+      windowId: this.windowId,
+      lastTabGetsClosedNext: this.lastTabGetsClosedNext
     });
   }
 }

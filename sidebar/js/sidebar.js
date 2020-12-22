@@ -3,6 +3,9 @@ const SidebarLogic = {
     workspaces: [],
 
     async init() {
+
+        // browser.storage.local.clear();
+
         // We need the workspaces for rendering, so wait for this one
         await SidebarLogic.fetchWorkspaces();
 
