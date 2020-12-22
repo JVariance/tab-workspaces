@@ -48,12 +48,7 @@ const SidebarLogic = {
                 document.querySelector(`#ws-${workspaceId}`).classList.add("active");
 
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
-                const newWorkspace = await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
-
-                console.log(newWorkspace);
-
                 await SidebarLogic.fetchWorkspaces();
-                // await SidebarLogic.addToWorkspacesList(newWorkspace);
                 await SidebarLogic.renderWorkspacesList();
 
             } else if (e.target.classList.contains("js-switch-panel")) {
@@ -138,8 +133,6 @@ const SidebarLogic = {
     async renderWorkspacesList() {
         const fragment = document.createDocumentFragment();
 
-        console.log("renderWorkspacesList()");
-
         this.workspaces.forEach(workspace => {
             const li = this.createListItem(workspace);
             fragment.appendChild(li);
@@ -167,10 +160,6 @@ const SidebarLogic = {
     },
 
     createListItem(workspace) {
-
-        console.log("createListItem");
-        console.log({ workspace });
-        console.log(workspace.active);
 
         const li = document.createElement("li");
         li.id = `ws-${workspace.id}`;

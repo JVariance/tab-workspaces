@@ -14,8 +14,6 @@ const BackgroundLogic = {
       }
     });
 
-    // browser.tabs.onCreated.addListener(BackgroundLogic.updateContextMenu);
-    // browser.tabs.onRemoved.addListener(BackgroundLogic.updateContextMenu);
     browser.tabs.onCreated.addListener(BackgroundLogic.handleTabsCreated);
     browser.tabs.onRemoved.addListener(BackgroundLogic.handleTabsRemoved);
 
@@ -32,17 +30,10 @@ const BackgroundLogic = {
   async getWorkspacesForWindow(windowId) {
     const workspaces = await WorkspaceStorage.fetchWorkspacesForWindow(windowId);
 
-    console.log("getWorkspacesForWindow");
-
     if (workspaces.length > 0) {
-      console.log("workspaces.length > 0");
-      console.log({ workspaces });
       return workspaces;
     } else {
-      console.log("workspaces.length = 0");
-      console.log("createNewWorkspace");
       const defaultWorkspace = await BackgroundLogic.createNewWorkspace(true);
-
       return [defaultWorkspace];
     }
   },
@@ -74,7 +65,6 @@ const BackgroundLogic = {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const nextNumber = (await WorkspaceStorage.fetchWorkspacesCountForWindow(windowId)) + 1;
 
-    // const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active || false);
     const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active || false);
 
     // Re-render context menu
@@ -84,29 +74,21 @@ const BackgroundLogic = {
   },
 
   async createNewWorkspaceAndSwitch(active) {
-    console.log({ active });
+
     const workspace = await BackgroundLogic.createNewWorkspace(active);
     await BackgroundLogic.switchToWorkspace(workspace.id);
-
-    console.log(workspace);
-    // workspace.active = true;
 
     return await workspace.toObject();
   },
 
   async switchToWorkspace(workspaceId, args = {}) {
 
-    console.log({ args });
-    console.log({ workspaceId });
     args.commandBased = args.hasOwnProperty("commandBased") ? args.commandBased : false;
 
     const windowId = await BackgroundLogic.getCurrentWindowId();
 
     const oldWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const newWorkspace = await Workspace.find(workspaceId);
-
-    console.log("switchToWorkSpace: ");
-    console.log({ newWorkspace, workspaceId });
 
     if (oldWorkspace.id == newWorkspace.id && args.commandBased === true) {
       // Nothing to do here
@@ -149,20 +131,11 @@ const BackgroundLogic = {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     let currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
 
-    console.log({ clickedTab });
-
     let newActiveTab = await currentWorkspace.getTabs();
-    // newActiveTab = newActiveTab.filter(tab => tab.highlighted === false && tab.id !== clickedTab.id).pop();
     newActiveTab = newActiveTab.filter(tab => tab.highlighted === false && tab.id !== clickedTab.id);
     newActiveTab = clickedTab.active === true ? newActiveTab.filter(tab => tab.active === false).pop() : newActiveTab.pop();
-    console.log({ newActiveTab });
-    // newActiveTab.active = true;
-    // console.log(currentTabs[]);
 
     // Attach tab to destination workspace
-    // tabs.forEach(tab => await destinationWorkspace.attachTab(tab));
-    // await Promise.all();
-    // tabs.forEach(tab => await destinationWorkspace.attachTab(tab));
     await Promise.all(tabs.map(tab => destinationWorkspace.attachTab(tab)));
 
     if (newActiveTab !== undefined) {
@@ -182,8 +155,6 @@ const BackgroundLogic = {
     }
 
     // Finally, detach tab from source workspace
-    // await currentWorkspace.detachTab(tab);
-    // tabs.forEach(tab => await currentWorkspace.detachTab(tab));
     await Promise.all(tabs.map(tab => currentWorkspace.detachTab(tab)));
 
     const sidebar = await BackgroundLogic.getView("sidebar");
@@ -213,7 +184,7 @@ const BackgroundLogic = {
 
     browser.menus.create({
       id: menuId,
-      title: "Send Tab to Workspace",
+      title: "Send Tab(s) to Workspace",
       contexts: ["tab"]
     });
 
@@ -245,71 +216,34 @@ const BackgroundLogic = {
 
   async handleTabsCreated() {
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
-
     workspace.lastTabGetsClosedNext = false;
-    console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
-    // this.name = state.name;
-    //   this.active = state.active;
-    //   this.hiddenTabs = state.hiddenTabs;
-    //   this.windowId = state.windowId;
-    //   this.lastTabGetsClosedNext = state.lastTabGetsClosedNext;
+
     const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext };
-
-    console.log({ state });
-
     WorkspaceStorage.storeWorkspaceState(workspace.id, state);
 
     BackgroundLogic.updateContextMenu();
   },
 
   async handleTabsRemoved(tabId, removeInfo) {
-    // await Util.timeout(250);
+
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
 
-    console.log({ workspace });
-
-    console.log("handleTabsRemoved()");
-
-    console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
-
     if (workspace.lastTabGetsClosedNext) {
-      console.log("hide tab again, haha :D");
       let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
-
-      console.log(newActiveTab);
-
       await browser.tabs.create({ url: null, active: true });
       await browser.tabs.hide(newActiveTab.id);
-      console.log("step 1 finished");
-      console.log("step 2 finished");
     }
 
-    console.log({ tabCount });
     if (tabCount <= 1) {
-      // console.log("new Tab created");
-      console.log("lastTabGetsClosedNext set to true");
-      // console.log({ workspace });
       workspace.lastTabGetsClosedNext = true;
 
       const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext };
       WorkspaceStorage.storeWorkspaceState(workspace.id, state);
     }
 
-
-
-    // browser.tabs.update(newTab.id);
     BackgroundLogic.updateContextMenu();
   },
-
-  // async waitAndGetTabs() {
-  //   await Util.timeout(250);
-  //   let tabCount;
-  //   let tabs = await browser.tabs.query({ hidden: false });
-  //   tabCount = tabs.length;
-
-  //   return tabCount;
-  // },
 
   updateContextMenu: Util.debounce(async () => {
     await browser.menus.removeAll();
@@ -319,9 +253,6 @@ const BackgroundLogic = {
 
   async handleContextMenuClick(menu, clickedTab) {
     var destinationWorkspace, tabs;
-
-    console.log({ menu });
-    console.log(menu.menuItemId);
 
     if (menu.menuItemId.substring(0, 3) == "new") {
       destinationWorkspace = await BackgroundLogic.createNewWorkspace(false);
@@ -333,9 +264,12 @@ const BackgroundLogic = {
 
     tabs = await destinationWorkspace.getHighlightedTabs();
 
-    console.log({ tabs, destinationWorkspace });
+    const index = tabs.findIndex(tab => tab.id == clickedTab.id);
 
-    // await BackgroundLogic.moveTabToWorkspace(tab, destinationWorkspace);
+    if (index < 0) {
+      tabs = [clickedTab];
+    }
+
     await BackgroundLogic.moveTabToWorkspace(tabs, clickedTab, destinationWorkspace);
   },
 
@@ -353,7 +287,6 @@ const BackgroundLogic = {
         nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
         break;
       case "create-workspace":
-        // nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
         nextWorkspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
         create = true;
         break;
@@ -386,10 +319,6 @@ const BackgroundLogic = {
   },
 
   createListItem(workspace) {
-
-    console.log("createListItem");
-    console.log({ workspace });
-    console.log(workspace.active);
 
     const li = document.createElement("li");
     li.id = `ws-${workspace.id}`;

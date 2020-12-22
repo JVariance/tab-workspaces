@@ -2,9 +2,6 @@ class Workspace {
   constructor(id, state) {
     this.id = id;
 
-    console.log("create Workspace");
-    console.log({ state });
-
     if (state) {
       this.name = state.name;
       this.active = state.active;
@@ -15,9 +12,7 @@ class Workspace {
   }
 
   static async create(windowId, name, active, lastTabGetsClosedNext) {
-    console.log(lastTabGetsClosedNext);
     lastTabGetsClosedNext = lastTabGetsClosedNext === undefined ? true : lastTabGetsClosedNext;
-    console.log(lastTabGetsClosedNext);
     const workspace = new Workspace(Util.generateUUID(), {
       name,
       active: active || false,
@@ -25,9 +20,6 @@ class Workspace {
       windowId,
       lastTabGetsClosedNext: lastTabGetsClosedNext
     });
-
-    console.log("created Workspace: ");
-    console.log({ name, windowId });
 
     await workspace.storeState();
     await WorkspaceStorage.registerWorkspaceToWindow(windowId, workspace.id);
@@ -92,7 +84,7 @@ class Workspace {
     await this.storeState();
 
     const tabIds = this.hiddenTabs.map(tab => tab.id);
-    console.log({ tabIds });
+
     await browser.tabs.hide(tabIds);
   }
 
@@ -101,12 +93,10 @@ class Workspace {
     const hiddenTabs = this.hiddenTabs;
     const tabIds = hiddenTabs?.map(tab => tab.id);
 
-    console.log({ tabIds });
-
     if (tabIds.length == 0) {
       browser.tabs.create({ url: null, active: true });
     } else {
-      await browser.tabs.show(tabIds).then(console.log("Tabs get showed"), err => console.log(err));
+      await browser.tabs.show(tabIds);
       await browser.tabs.update(tabIds[0], { active: true });
     }
 
@@ -133,9 +123,11 @@ class Workspace {
     // We need to refresh the state because if the active workspace was switched we might have an old reference
     await this.refreshState();
 
+    console.log({ tab });
+    console.log(this.hiddenTabs);
+
     if (this.active) {
-      // If the workspace is currently active, simply remove the tab.
-      // await browser.tabs.remove(tab.id);
+      // If the workspace is currently active, simply hide the tab.
       await browser.tabs.hide(tab.id);
     } else {
       // Otherwise, forget it from hiddenTabs

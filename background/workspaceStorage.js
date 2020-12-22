@@ -4,9 +4,6 @@ const WorkspaceStorage = {
     const key = `workspaces@${workspaceId}`;
     const results = await browser.storage.local.get(key);
 
-    console.log("fetchWorkspaceState()");
-    console.log({ results });
-
     if (results[key]) {
       return results[key];
     } else {
@@ -39,13 +36,9 @@ const WorkspaceStorage = {
     const key = `windows@${windowId}`;
     const results = await browser.storage.local.get(key);
 
-    console.log("fetchWorkspacesForWindow()");
     const workspaceIds = results[key] || [];
     const promises = workspaceIds.map(async workspaceId => {
       const state = await WorkspaceStorage.fetchWorkspaceState(workspaceId);
-
-      console.log({ state });
-
       return new Workspace(workspaceId, state);
     });
 
