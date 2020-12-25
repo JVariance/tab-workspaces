@@ -97,9 +97,11 @@ const BackgroundLogic = {
 
     // Since we're gonna be closing all open tabs, we need to show the new ones first.
     // However, we first need to prepare the old one, so it can tell which tabs were the original ones and which were opened by the new workspace.
+    await oldWorkspace.saveLastActiveTab();
     await oldWorkspace.prepareToHide();
     await newWorkspace.show();
     await oldWorkspace.hide();
+    await newWorkspace.showLastActiveTab();
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
@@ -217,8 +219,9 @@ const BackgroundLogic = {
   async handleTabsCreated() {
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
     workspace.lastTabGetsClosedNext = false;
+    workspace.lastActiveTab = await workspace.getActiveTab();
 
-    const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext };
+    const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext, lastActiveTab: workspace.lastActiveTab };
     WorkspaceStorage.storeWorkspaceState(workspace.id, state);
 
     BackgroundLogic.updateContextMenu();
@@ -237,8 +240,9 @@ const BackgroundLogic = {
 
     if (tabCount <= 1) {
       workspace.lastTabGetsClosedNext = true;
+      workspace.lastActiveTab = await workspace.getActiveTab();
 
-      const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext };
+      const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext, lastActiveTab: workspace.lastActiveTab };
       WorkspaceStorage.storeWorkspaceState(workspace.id, state);
     }
 

@@ -8,17 +8,23 @@ class Workspace {
       this.hiddenTabs = state.hiddenTabs;
       this.windowId = state.windowId;
       this.lastTabGetsClosedNext = state.lastTabGetsClosedNext;
+      this.lastActiveTab = state.lastActiveTab;
     }
   }
 
-  static async create(windowId, name, active, lastTabGetsClosedNext) {
+  static async create(windowId, name, active, lastTabGetsClosedNext, lastActiveTab) {
     lastTabGetsClosedNext = lastTabGetsClosedNext === undefined ? true : lastTabGetsClosedNext;
+    // lastActiveTab = lastActiveTab === undefined ? await this.getActiveTab() : lastActiveTab;
+    lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true }) : [lastActiveTab];
+    lastActiveTab = lastActiveTab[0];
+    console.log({ lastActiveTab });
     const workspace = new Workspace(Util.generateUUID(), {
       name,
       active: active || false,
       hiddenTabs: [],
       windowId,
-      lastTabGetsClosedNext: lastTabGetsClosedNext
+      lastTabGetsClosedNext,
+      lastActiveTab
     });
 
     await workspace.storeState();
@@ -37,6 +43,28 @@ class Workspace {
   async rename(newName) {
     this.name = newName;
     await this.storeState();
+  }
+
+  async getActiveTab() {
+    console.log("getActiveTab()");
+    let tabs = await this.getTabs();
+    console.log(tabs.filter(tab => tab.active === true).pop());
+    return tabs.filter(tab => tab.active === true).pop();
+  }
+
+  async showLastActiveTab() {
+    console.log("showLastActiveTab()");
+    let activeTab = this.lastActiveTab;
+    activeTab = Array.isArray(activeTab) ? activeTab[0] : activeTab;
+    console.log({ activeTab });
+    browser.tabs.update(activeTab.id, { active: true });
+  }
+
+  async saveLastActiveTab() {
+    console.log("saveLastActiveTab()");
+    let activeTab = await this.getActiveTab();
+    console.log({ activeTab });
+    this.lastActiveTab = activeTab;
   }
 
   async getTabs() {
@@ -113,6 +141,9 @@ class Workspace {
 
   async attachTab(tab) {
 
+    console.log("attachTab()");
+    console.log(this);
+
     this.hiddenTabs.push(tab);
 
     await browser.tabs.show(tab.id);
@@ -123,8 +154,8 @@ class Workspace {
     // We need to refresh the state because if the active workspace was switched we might have an old reference
     await this.refreshState();
 
-    console.log({ tab });
-    console.log(this.hiddenTabs);
+    console.log("detachTab()");
+    console.log(this);
 
     if (this.active) {
       // If the workspace is currently active, simply hide the tab.
@@ -147,6 +178,7 @@ class Workspace {
     this.hiddenTabs = state.hiddenTabs;
     this.windowId = state.windowId;
     this.lastTabGetsClosedNext = state.lastTabGetsClosedNext;
+    this.lastActiveTab = state.lastActiveTab;
 
     // For backwards compatibility
     if (!this.windowId) {
@@ -162,7 +194,8 @@ class Workspace {
       active: this.active,
       hiddenTabs: this.hiddenTabs,
       windowId: this.windowId,
-      lastTabGetsClosedNext: this.lastTabGetsClosedNext
+      lastTabGetsClosedNext: this.lastTabGetsClosedNext,
+      lastActiveTab: this.lastActiveTab
     });
   }
 }
