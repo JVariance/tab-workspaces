@@ -55,9 +55,11 @@ const BackgroundLogic = {
 
     const tabCount = await activeWorkspace.getTabs();
     const tabCountLength = tabCount.length;
-    const sidebar = await BackgroundLogic.getView("sidebar");
-    if (sidebar.document.querySelector(".workspace-list-entry.active")) {
-      sidebar.document.querySelector(".workspace-list-entry.active .tabs-qty").textContent = tabCountLength;
+    if (await browser.sidebarAction.isOpen({})) {
+      const sidebar = await BackgroundLogic.getView("sidebar");
+      if (sidebar.document.querySelector(".workspace-list-entry.active")) {
+        sidebar.document.querySelector(".workspace-list-entry.active .tabs-qty").textContent = tabCountLength;
+      }
     }
   },
 
@@ -102,6 +104,8 @@ const BackgroundLogic = {
     await newWorkspace.show();
     await oldWorkspace.hide();
     await newWorkspace.showLastActiveTab();
+
+    browser.tabs.executeScript({ file: "/contentScripts/switched-workspace.js" });
   },
 
   async renameWorkspace(workspaceId, workspaceName) {

@@ -15,7 +15,7 @@ class Workspace {
   static async create(windowId, name, active, lastTabGetsClosedNext, lastActiveTab) {
     lastTabGetsClosedNext = lastTabGetsClosedNext === undefined ? true : lastTabGetsClosedNext;
     // lastActiveTab = lastActiveTab === undefined ? await this.getActiveTab() : lastActiveTab;
-    lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true }) : [lastActiveTab];
+    lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true, hidden: false }) : [lastActiveTab];
     lastActiveTab = lastActiveTab[0];
     console.log({ lastActiveTab });
     const workspace = new Workspace(Util.generateUUID(), {
