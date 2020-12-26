@@ -48,6 +48,7 @@ const SidebarLogic = {
                 document.querySelector(`#ws-${workspaceId}`).classList.add("active");
 
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
+                await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
                 await SidebarLogic.fetchWorkspaces();
                 await SidebarLogic.renderWorkspacesList();
 
