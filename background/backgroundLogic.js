@@ -110,8 +110,14 @@ const BackgroundLogic = {
     }
 
     browser.storage.local.set({ currentWorkspace });
-    browser.tabs.insertCSS({ file: "/contentScripts/switched-workspace.css" });
-    browser.tabs.executeScript({ file: "/contentScripts/switched-workspace.js" });
+
+    let showNotifications = await browser.storage.local.get("showNotifications");
+    showNotifications = showNotifications.showNotifications;
+
+    if (showNotifications.show) {
+      browser.tabs.insertCSS({ file: "/contentScripts/switched-workspace.css" });
+      browser.tabs.executeScript({ file: "/contentScripts/switched-workspace.js" });
+    }
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
