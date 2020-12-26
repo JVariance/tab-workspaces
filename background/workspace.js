@@ -15,9 +15,10 @@ class Workspace {
   static async create(windowId, name, active, lastTabGetsClosedNext, lastActiveTab) {
     lastTabGetsClosedNext = lastTabGetsClosedNext === undefined ? true : lastTabGetsClosedNext;
     // lastActiveTab = lastActiveTab === undefined ? await this.getActiveTab() : lastActiveTab;
-    lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true, hidden: false }) : [lastActiveTab];
-    lastActiveTab = lastActiveTab[0];
-    console.log({ lastActiveTab });
+    // lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true, hidden: false }) : [lastActiveTab];
+    // lastActiveTab = lastActiveTab === undefined ? await browser.tabs.query({ windowId, active: true, hidden: false }) : [lastActiveTab];
+    lastActiveTab = Array.isArray(lastActiveTab) ? lastActiveTab[0] : lastActiveTab;
+    // console.log({ lastActiveTab });
     const workspace = new Workspace(Util.generateUUID(), {
       name,
       active: active || false,
@@ -46,24 +47,19 @@ class Workspace {
   }
 
   async getActiveTab() {
-    console.log("getActiveTab()");
     let tabs = await this.getTabs();
-    console.log(tabs.filter(tab => tab.active === true).pop());
     return tabs.filter(tab => tab.active === true).pop();
   }
 
   async showLastActiveTab() {
-    console.log("showLastActiveTab()");
     let activeTab = this.lastActiveTab;
+    activeTab = activeTab === undefined ? await browser.tabs.query({ active: true, hidden: false }) : activeTab;
     activeTab = Array.isArray(activeTab) ? activeTab[0] : activeTab;
-    console.log({ activeTab });
     browser.tabs.update(activeTab.id, { active: true });
   }
 
   async saveLastActiveTab() {
-    console.log("saveLastActiveTab()");
     let activeTab = await this.getActiveTab();
-    console.log({ activeTab });
     this.lastActiveTab = activeTab;
   }
 

@@ -1,47 +1,47 @@
 if (typeof message === 'undefined') {
-    var message = document.createElement("p");
+    var message = undefined;
 } else {
-    message = document.getElementById("tab-workspaces-message");
+    document.getElementById("tab-workspaces-message").remove();
 }
 
-if (!document.getElementById("tab-workspaces-message")) {
-    message.id = "tab-workspaces-message";
-    message.textContent = "Switched Workspace";
-    message.style.padding = "2rem";
-    message.style.backgroundColor = "rgba(0 0 0 / 0.75)";
-    message.style.color = "#fff";
-    message.style.position = "fixed";
-    message.style.bottom = "1rem";
-    message.style.right = "1rem";
-    message.style.borderRadius = "10px";
+message = document.createElement("p");
+message.id = "tab-workspaces-message";
+// message.textContent = `Switched to:\n${document.body.getAttribute("tab-workspace-name")}`;
+// message.textContent = `Switched to ${window.wrappedJSObject.tabWorkspaceName}`;
+// const windowId = await BackgroundLogic.getCurrentWindowId();
+// console.log({ windowId });
+// let workspaceName = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
+// workspaceName = workspaceName.name;
+// message.textContent = `Switched to ${workspaceName}`;
+// browser.runtime.sendMessage({ type: "getWorkspaceName" }).then(msg => console.log(msg.result));
+// wsName = undefined;
+// console.log({ wsName });
+appendMessage(message);
+
+function fadeIn(el) {
+    el.classList.add('show');
+    el.classList.remove('hide');
+}
+function fadeOut(el) {
+    el.classList.add('hide');
+    el.classList.remove('show');
+}
+async function getWorkspaceName() {
+    let wsName = await browser.runtime.sendMessage({ type: "getWorkspaceName" });
+    console.log({ wsName });
+    return wsName;
+}
+
+async function appendMessage(message) {
+    // let wsName = await getWorkspaceName();
+    // let wsName = await BackgroundLogic.getCurrentWindowId();
+    console.log(browser.storage.local.get("current-workspace-name"));
+    let wsName = "pups";
+    message.textContent = `Switched to ${wsName}`;
     document.body.appendChild(message);
-    message.style.transition = "opacity 1s linear";
-    message.style.display = "block";
-    message.style.opacity = "1";
-
+    fadeIn(message);
     setTimeout(function () {
-        message.style.opacity = "0";
+        fadeOut(message);
     }, 2000);
-    setTimeout(function () {
-        console.log("message removed!");
-        message.style.display = "none";
-    }, 2050);
-} else {
-    message.style.display = "block";
-    message.style.transition = "opacity 1s linear";
-    message.style.opacity = "1";
 
-    setTimeout(function () {
-        message.style.opacity = "0";
-    }, 2000);
-    setTimeout(function () {
-        console.log("message removed!");
-        message.style.display = "none";
-    }, 2050);
 }
-
-
-// message.style.opacity = "1";
-//  else {
-//     message = document.getElementById("tab-worskpaces-message");
-// }

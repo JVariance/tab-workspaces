@@ -17,6 +17,7 @@
     "storage",
     "tabs",
     "tabHide",
+    "activeTab",
     "<all_urls>"
   ],
 

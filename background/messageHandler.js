@@ -1,5 +1,7 @@
-browser.runtime.onMessage.addListener(async m => {
+browser.runtime.onMessage.addListener(async (m, sender, sendResponse) => {
   let response;
+
+  console.log({ m });
 
   switch (m.method) {
     case "getWorkspacesForCurrentWindow":
@@ -24,6 +26,15 @@ browser.runtime.onMessage.addListener(async m => {
       await BackgroundLogic.deleteWorkspace(m.workspaceId);
       break;
   }
+
+  // if (m.type == "getWorkspaceName") {
+  //   console.log("getWorkspaceName()");
+  //   const windowId = await BackgroundLogic.getCurrentWindowId();
+  //   const currWs = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
+  //   console.log({ currWs });
+  //   console.log(sendResponse);
+  //   sendResponse(currWs);
+  // }
 
   return response;
 });

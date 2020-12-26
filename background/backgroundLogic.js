@@ -105,7 +105,12 @@ const BackgroundLogic = {
     await oldWorkspace.hide();
     await newWorkspace.showLastActiveTab();
 
+    browser.tabs.insertCSS({ file: "/contentScripts/switched-workspace.css" });
+    // browser.tabs.executeScript({ code: `document.body.setAttribute("tab-workspace-name", ${newWorkspace.name})`, file: "/contentScripts/switched-workspace.js" });
+    // browser.tabs.executeScript({ code: `document.html.setAttribute("tab-workspace-name", ${newWorkspace.name})` });
+    window.tabWorkspaceName = newWorkspace.name;
     browser.tabs.executeScript({ file: "/contentScripts/switched-workspace.js" });
+    // browser.runtime.sendMessage({});
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
