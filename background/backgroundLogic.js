@@ -127,6 +127,8 @@ const BackgroundLogic = {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const workspaceToDelete = await Workspace.find(workspaceId);
+    let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
+    await browser.tabs.remove(tabsToDelete);
 
     if (currentWorkspace.id == workspaceId) {
       const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
@@ -308,14 +310,15 @@ const BackgroundLogic = {
         break;
     }
 
-
     const sidebar = await BackgroundLogic.getView("sidebar");
 
     if (!create) {
-      BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
-      BackgroundLogic.updateContextMenu();
-      sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
-      sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+      if (workspaces.length > 1) {
+        BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
+        BackgroundLogic.updateContextMenu();
+        sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
+        sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+      }
     } else {
       BackgroundLogic.addToWorkspacesList(sidebar, nextWorkspace);
     }

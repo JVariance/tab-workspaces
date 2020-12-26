@@ -1,8 +1,6 @@
 browser.runtime.onMessage.addListener(async (m, sender, sendResponse) => {
   let response;
 
-  console.log({ m });
-
   switch (m.method) {
     case "getWorkspacesForCurrentWindow":
       const workspaces = await BackgroundLogic.getWorkspacesForCurrentWindow();
