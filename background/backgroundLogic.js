@@ -112,7 +112,17 @@ const BackgroundLogic = {
     browser.storage.local.set({ currentWorkspace });
 
     let showNotifications = await browser.storage.local.get("showNotifications");
+
+    if (Object.keys(showNotifications).length === 0 && showNotifications.constructor === Object) {
+      let showNotifications = {
+        show: true
+      }
+      await browser.storage.local.set({ showNotifications });
+      showNotifications = await browser.storage.local.get("showNotifications");
+    }
+
     showNotifications = showNotifications.showNotifications;
+
 
     if (showNotifications.show) {
       browser.tabs.insertCSS({ file: "/contentScripts/switched-workspace.css" });
@@ -295,40 +305,56 @@ const BackgroundLogic = {
     await BackgroundLogic.moveTabToWorkspace(tabs, clickedTab, destinationWorkspace);
   },
 
+  commandTimeOut: false,
+  timeoutHandle: setTimeout(function () {
+    BackgroundLogic.commandTimeOut = false;
+  }, 250),
+  setCommandTimeout() {
+    clearTimeout(BackgroundLogic.timeoutHandle);
+    BackgroundLogic.timeoutHandle = setTimeout(function () {
+      BackgroundLogic.commandTimeOut = false;
+    }, 250);
+  },
+
   async handleCommands(command) {
-    const windowId = await BackgroundLogic.getCurrentWindowId();
-    const workspaces = await WorkspaceStorage.fetchWorkspacesForWindow(windowId);
-    const activeWorkspace = workspaces.find(ws => ws.active === true);
-    let nextWorkspace;
-    let create = false;
-    switch (command) {
-      case "next-workspace":
-        nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) + 1)];
-        break;
-      case "previous-workspace":
-        nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
-        break;
-      case "create-workspace":
-        nextWorkspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
-        create = true;
-        break;
-      default:
-        break;
-    }
+    BackgroundLogic.setCommandTimeout();
+    if (!BackgroundLogic.commandTimeOut) {
+      BackgroundLogic.commandTimeOut = true;
+      const windowId = await BackgroundLogic.getCurrentWindowId();
+      const workspaces = await WorkspaceStorage.fetchWorkspacesForWindow(windowId);
+      const activeWorkspace = workspaces.find(ws => ws.active === true);
+      let nextWorkspace;
+      let create = false;
+      switch (command) {
+        case "next-workspace":
+          nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) + 1)];
+          break;
+        case "previous-workspace":
+          nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
+          break;
+        case "create-workspace":
+          nextWorkspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
+          create = true;
+          break;
+        default:
+          break;
+      }
 
-    const sidebar = await BackgroundLogic.getView("sidebar");
+      const sidebar = await BackgroundLogic.getView("sidebar");
 
-    if (!create) {
-      if (workspaces.length > 1) {
-        BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
-        BackgroundLogic.updateContextMenu();
-        sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
-        sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+      if (!create) {
+        if (workspaces.length > 1) {
+          BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
+          BackgroundLogic.updateContextMenu();
+          sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
+          sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+        }
+      } else {
+        BackgroundLogic.addToWorkspacesList(sidebar, nextWorkspace);
       }
     } else {
-      BackgroundLogic.addToWorkspacesList(sidebar, nextWorkspace);
+      console.log("Timeout!!!");
     }
-
   },
 
   async addToWorkspacesList(view, workspace, args = { "switch": true }) {
