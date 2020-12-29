@@ -78,14 +78,12 @@ const BackgroundLogic = {
   async createNewWorkspaceAndSwitch(active) {
 
     const workspace = await BackgroundLogic.createNewWorkspace(active);
-    await BackgroundLogic.switchToWorkspace(workspace.id);
+    let newWorkspace = await BackgroundLogic.switchToWorkspace(workspace.id);
 
-    return await workspace.toObject();
+    return await newWorkspace.toObject();
   },
 
-  async switchToWorkspace(workspaceId, args = {}) {
-
-    args.commandBased = args.hasOwnProperty("commandBased") ? args.commandBased : false;
+  async switchToWorkspace(workspaceId, args = { commandBased: false }) {
 
     const windowId = await BackgroundLogic.getCurrentWindowId();
 
@@ -114,7 +112,8 @@ const BackgroundLogic = {
     let showNotifications = await browser.storage.local.get("showNotifications");
 
     if (Object.keys(showNotifications).length === 0 && showNotifications.constructor === Object) {
-      let showNotifications = {
+      console.log("showNotifications ist leer!");
+      showNotifications = {
         show: true
       }
       await browser.storage.local.set({ showNotifications });
@@ -123,11 +122,12 @@ const BackgroundLogic = {
 
     showNotifications = showNotifications.showNotifications;
 
-
     if (showNotifications.show) {
       browser.tabs.insertCSS({ file: "/contentScripts/switched-workspace.css" });
       browser.tabs.executeScript({ file: "/contentScripts/switched-workspace.js" });
     }
+
+    return newWorkspace;
   },
 
   async renameWorkspace(workspaceId, workspaceName) {
@@ -317,6 +317,7 @@ const BackgroundLogic = {
   },
 
   async handleCommands(command) {
+    //prevent errors resulting from longpressed keys
     BackgroundLogic.setCommandTimeout();
     if (!BackgroundLogic.commandTimeOut) {
       BackgroundLogic.commandTimeOut = true;
@@ -333,12 +334,14 @@ const BackgroundLogic = {
           nextWorkspace = workspaces[Util.crawlArray(workspaces, 0, workspaces.indexOf(activeWorkspace) - 1)];
           break;
         case "create-workspace":
-          nextWorkspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
           create = true;
+          nextWorkspace = await BackgroundLogic.createNewWorkspaceAndSwitch();
           break;
         default:
           break;
       }
+
+      console.log("bis hierhin geht's gar nicht");
 
       const sidebar = await BackgroundLogic.getView("sidebar");
 
@@ -352,12 +355,10 @@ const BackgroundLogic = {
       } else {
         BackgroundLogic.addToWorkspacesList(sidebar, nextWorkspace);
       }
-    } else {
-      console.log("Timeout!!!");
     }
   },
 
-  async addToWorkspacesList(view, workspace, args = { "switch": true }) {
+  async addToWorkspacesList(view, workspace, args = { switch: true }) {
     const list = view.document.querySelector("#workspace-list");
     const listItem = BackgroundLogic.createListItem(workspace);
     list.appendChild(listItem);

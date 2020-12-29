@@ -10,6 +10,11 @@ const SidebarLogic = {
         await SidebarLogic.fetchWorkspaces();
 
         browser.storage.local.get("workspacestheme").then((item) => {
+            if (item.workspacestheme === undefined) {
+                item.workspacestheme = {
+                    name: "dark"
+                }
+            }
             document.body.setAttribute("theme", item.workspacestheme.name);
             if (item.workspacestheme.name === "light") {
                 document.getElementById("theme-switch").checked = false;
