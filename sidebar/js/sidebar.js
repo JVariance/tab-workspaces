@@ -77,19 +77,19 @@ const SidebarLogic = {
                 }
 
                 const workspaceId = li.dataset.workspaceId;
-                li.parentNode.removeChild(li);
+                // li.parentNode.removeChild(li);
 
                 // Delete the workspace
                 await SidebarLogic.callBackground("deleteWorkspace", {
                     workspaceId: workspaceId
                 });
 
-                let workspaces = Array.from(document.querySelectorAll(".js-switch-workspace")),
-                    activeIndex = workspaces.findIndex(ws => ws.classList.contains("active"));
+                // let workspaces = Array.from(document.querySelectorAll(".js-switch-workspace")),
+                //     activeIndex = workspaces.findIndex(ws => ws.classList.contains("active"));
 
-                if (activeIndex < 0) {
-                    workspaces[workspaces.length - 1].classList.add("active");
-                }
+                // if (activeIndex < 0) {
+                //     workspaces[workspaces.length - 1].classList.add("active");
+                // }
             }
         });
 

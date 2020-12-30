@@ -142,27 +142,8 @@ const BackgroundLogic = {
   },
 
   async deleteWorkspace(workspaceId) {
-    const windowId = await BackgroundLogic.getCurrentWindowId();
-    const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
-    const workspaceToDelete = await Workspace.find(workspaceId);
-    let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
-    await browser.tabs.remove(tabsToDelete);
 
-    if (currentWorkspace.id == workspaceId) {
-      const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
-      await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
-    }
-
-    await workspaceToDelete.delete();
-
-    // Re-render context menu
-    await BackgroundLogic.updateContextMenu();
-
-    // const sidebar = await BackgroundLogic.getView("sidebar");
-    // const popup = await BackgroundLogic.getView("popup");
     let views = await BackgroundLogic.getViewsArray();
-    // views = views.filter(Boolean);
-
     views.map(function (view) {
       let workspaceList = view.document.getElementById("workspace-list");
       let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => ws.id === `ws-${workspaceId}`);
@@ -175,8 +156,46 @@ const BackgroundLogic = {
           Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
         }
       }
-      // console.log(workspaceList.querySelectorAll(".workspace-list-entry"));
     });
+
+    const windowId = await BackgroundLogic.getCurrentWindowId();
+    const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
+    const workspaceToDelete = await Workspace.find(workspaceId);
+    let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
+    await browser.tabs.remove(tabsToDelete);
+
+    if (currentWorkspace.id == workspaceId) {
+      const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
+      await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
+    }
+
+
+
+    await workspaceToDelete.delete();
+
+    // Re-render context menu
+    await BackgroundLogic.updateContextMenu();
+
+    // let views = await BackgroundLogic.getViewsArray();
+    // views.map(function (view) {
+    //   let workspaceList = view.document.getElementById("workspace-list");
+    //   console.log(`ws-${workspaceId}`);
+    //   let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => console.log(ws.id));
+
+    //   console.log({ index });
+
+    //   if (index !== -1) {
+    //     let toBeDeletedWorkspace = workspaceList.querySelector(`#ws-${workspaceId}`);
+    //     console.log({ toBeDeletedWorkspace });
+    //     let wasActive = toBeDeletedWorkspace.classList.contains("active");
+    //     toBeDeletedWorkspace.remove();
+    //     if (wasActive) {
+    //       console.log(Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)]);
+    //       Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
+    //     }
+    //   }
+    //   // console.log(workspaceList.querySelectorAll(".workspace-list-entry"));
+    // });
 
   },
 
@@ -393,8 +412,11 @@ const BackgroundLogic = {
         if (workspaces.length > 1) {
           BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
           BackgroundLogic.updateContextMenu();
-          sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
-          sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+          let views = await BackgroundLogic.getViewsArray();
+          views.map(view => {
+            view.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
+            view.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
+          });
         }
       }
     }
