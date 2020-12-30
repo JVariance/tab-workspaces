@@ -55,7 +55,8 @@ const SidebarLogic = {
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
                 await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
                 await SidebarLogic.fetchWorkspaces();
-                await SidebarLogic.renderWorkspacesList();
+                // await SidebarLogic.callBackground();
+                // await SidebarLogic.renderWorkspacesList();
 
             } else if (e.target.classList.contains("js-switch-panel")) {
                 document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
@@ -94,12 +95,10 @@ const SidebarLogic = {
 
         document.addEventListener("focusin", async e => {
             if (e.target.classList.contains("workspace-list-entry")) {
-                console.log("focus workspace-list-entry");
                 let btns = Array.from(e.target.querySelectorAll(".edit-button"));
                 btns.map(btn => btn.classList.add("visible"));
             }
             if (e.target.classList.contains("edit-button")) {
-                console.log("focus edit-button");
                 let btns = Array.from(e.target.parentElement.querySelectorAll(".edit-button"));
                 btns.map(btn => btn.classList.add("visible"));
             }
@@ -110,12 +109,10 @@ const SidebarLogic = {
                 e.target.parentNode.classList.remove("edit-mode");
             }
             if (e.target.classList.contains("workspace-list-entry")) {
-                console.log("focusout workspace-list-entry");
                 let btns = Array.from(e.target.querySelectorAll(".edit-button"));
                 btns.map(btn => btn.classList.remove("visible"));
             }
             if (e.target.classList.contains("edit-button")) {
-                console.log("focusout edit-button");
                 let btns = Array.from(e.target.parentElement.querySelectorAll(".edit-button"));
                 btns.map(btn => btn.classList.remove("visible"));
             }
@@ -167,6 +164,7 @@ const SidebarLogic = {
     },
 
     async renderWorkspacesList() {
+
         const fragment = document.createDocumentFragment();
 
         this.workspaces.forEach(workspace => {
@@ -177,12 +175,6 @@ const SidebarLogic = {
         const list = document.querySelector("#workspace-list");
         list.innerHTML = '';
         list.appendChild(fragment);
-    },
-
-    async addToWorkspacesList(workspace) {
-        const list = document.querySelector("#workspace-list");
-        const listItem = this.createListItem(workspace);
-        list.appendChild(listItem);
     },
 
     async callBackground(method, args) {

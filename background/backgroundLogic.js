@@ -80,6 +80,8 @@ const BackgroundLogic = {
     const workspace = await BackgroundLogic.createNewWorkspace(active);
     let newWorkspace = await BackgroundLogic.switchToWorkspace(workspace.id);
 
+    await BackgroundLogic.addToWorkspacesList(newWorkspace);
+
     return await newWorkspace.toObject();
   },
 
@@ -154,7 +156,28 @@ const BackgroundLogic = {
     await workspaceToDelete.delete();
 
     // Re-render context menu
-    BackgroundLogic.updateContextMenu();
+    await BackgroundLogic.updateContextMenu();
+
+    // const sidebar = await BackgroundLogic.getView("sidebar");
+    // const popup = await BackgroundLogic.getView("popup");
+    let views = await BackgroundLogic.getViewsArray();
+    // views = views.filter(Boolean);
+
+    views.map(function (view) {
+      let workspaceList = view.document.getElementById("workspace-list");
+      let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => ws.id === `ws-${workspaceId}`);
+
+      if (index !== -1) {
+        let toBeDeletedWorkspace = workspaceList.querySelector(`#ws-${workspaceId}`);
+        let wasActive = toBeDeletedWorkspace.classList.contains("active");
+        toBeDeletedWorkspace.remove();
+        if (wasActive) {
+          Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
+        }
+      }
+      // console.log(workspaceList.querySelectorAll(".workspace-list-entry"));
+    });
+
   },
 
   async moveTabToWorkspace(tabs, clickedTab, destinationWorkspace) {
@@ -207,6 +230,19 @@ const BackgroundLogic = {
     const currentWindow = await browser.windows.getCurrent();
 
     return currentWindow.id;
+  },
+
+  async getViewsArray() {
+
+    let views = [];
+    const sidebar = await BackgroundLogic.getView("sidebar");
+    const popup = await BackgroundLogic.getView("popup");
+
+    views.push(sidebar);
+    views.push(popup);
+    views = views.filter(Boolean);
+
+    return views;
   },
 
   async initializeContextMenu() {
@@ -295,8 +331,7 @@ const BackgroundLogic = {
 
     if (menu.menuItemId.substring(0, 3) == "new") {
       destinationWorkspace = await BackgroundLogic.createNewWorkspace(false);
-      const sidebar = await BackgroundLogic.getView("sidebar");
-      await BackgroundLogic.addToWorkspacesList(sidebar, destinationWorkspace, { "switch": false });
+      await BackgroundLogic.addToWorkspacesList(destinationWorkspace, { "switch": false });
     } else {
       destinationWorkspace = await Workspace.find(menu.menuItemId);
     }
@@ -354,8 +389,6 @@ const BackgroundLogic = {
           break;
       }
 
-      const sidebar = await BackgroundLogic.getView("sidebar");
-
       if (!create) {
         if (workspaces.length > 1) {
           BackgroundLogic.switchToWorkspace(nextWorkspace.id, { commandsBased: true });
@@ -363,20 +396,23 @@ const BackgroundLogic = {
           sidebar.document.querySelector(`#ws-${activeWorkspace.id}`).classList.remove("active");
           sidebar.document.querySelector(`#ws-${nextWorkspace.id}`).classList.add("active");
         }
-      } else {
-        BackgroundLogic.addToWorkspacesList(sidebar, nextWorkspace);
       }
     }
   },
 
-  async addToWorkspacesList(view, workspace, args = { switch: true }) {
-    const list = view.document.querySelector("#workspace-list");
-    const listItem = BackgroundLogic.createListItem(workspace);
-    list.appendChild(listItem);
-    if (args.switch === true) {
-      view.document.querySelector(`.workspace-list-entry.active`).classList.remove("active");
-      view.document.querySelector(`#ws-${workspace.id}`).classList.add("active");
-    }
+  async addToWorkspacesList(workspace, args = { switch: true }) {
+    let views = await BackgroundLogic.getViewsArray();
+    views.map(async (view) => {
+      const list = view.document.querySelector("#workspace-list");
+      const listItem = BackgroundLogic.createListItem(workspace);
+      list.appendChild(listItem);
+      if (args.switch === true) {
+        view.document.querySelector(`.workspace-list-entry.active`).classList.remove("active");
+        view.document.querySelector(`#ws-${workspace.id}`).classList.add("active");
+      }
+      workspace = await workspace.toObject();
+      listItem.querySelector(".tabs-qty").textContent = workspace.tabCount;
+    });
   },
 
   createListItem(workspace) {
