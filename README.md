@@ -10,7 +10,15 @@ This is a fork of [Workspaces](https://addons.mozilla.org/de/firefox/addon/tab-w
 
  - Use of Firefox' hideTab-API --> Tabs are no longer closed and completely reloaded when adding or switching workspaces
  - Redesign -> Dark Theme added
- - (nyi) Switch to next Workspace if last tab of current Workspace got closed
+ - Added sidebar (open with Ctrl+Alt+Q)
+ - Shortcuts to add and switch workspaces
+
+    - New Workspace: Ctrl+Alt+A
+    - Switch to next Workspace: Ctrl+Alt+C
+    - Switch to previuos Workspace: Ctrl+Alt+X
+
+ - Send **multiple** (selected) tabs to new/ other workspace
+ - Notification informs which workspace is active when switching (can be unchecked in extension's settings)
 
 _______________________________________
 Organize your tabs into workspaces. Switch between workspaces to change which tabs are displayed at the moment.
@@ -35,6 +43,18 @@ This extension was inspired by [Multi-Account Containers](https://addons.mozilla
 Special thanks to [@NicolasJEngler](http://nicolasjengler.com.ar/) for designing a beautiful UI for this extension!
 
 ## Development
+
+``` 
+
+web-ext run --firefox=firefoxdeveloperedition
+```
+
+### Build
+
+``` 
+
+web-ext build --overwrite-dest
+```
 
 ### Sass to CSS
 

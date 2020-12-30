@@ -261,25 +261,41 @@ li.workspace-list-entry input {
     outline: none;
 }
 
-
 li.workspace-list-entry a.edit-button {
     position: absolute;
     top: 50%;
     transform: translate(0, -50%);
     height: 16px;
     width: 16px;
-    visibility: hidden;
+    opacity: 0;
     pointer-events: none;
+    background-color: var(--secondary-color);
+    border-radius: 100%;
 }
 
 li.workspace-list-entry {
     &:hover {
         a.edit-button {
-            visibility: visible;
+            opacity: 1;
             pointer-events: all;
+            background-color: var(--highlight-color);
         }
     }
 }
+
+a.edit-button {
+    &.visible {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+}
+
+// a.edit-button {
+//     &:focus {
+//         opacity: 1 !important;
+//         pointer-events: all !important;
+//     }
+// }
 
 li.workspace-list-entry a {
     color: var(--text-color);

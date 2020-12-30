@@ -4,6 +4,8 @@ html,
 body {
     margin: 0;
     padding: 0;
+    // overflow: hidden;
+    width: 100vw;
 }
 
 .container {
@@ -35,3 +37,29 @@ ul#workspace-list {
 li.workspace-list-entry.active {
     pointer-events: all;
 }
+
+a.edit-button {
+
+    &.visible {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+}
+
+// li.workspace-list-entry {
+
+//     &:hover,
+//     &:focus {
+//         a.edit-button {
+//             opacity: 1;
+//             pointer-events: all;
+//         }
+//     }
+// }
+
+// a.edit-button {
+//     &:focus {
+//         opacity: 1 !important;
+//         pointer-events: all !important;
+//     }
+// }

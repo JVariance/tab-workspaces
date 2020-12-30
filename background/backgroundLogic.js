@@ -67,7 +67,7 @@ const BackgroundLogic = {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const nextNumber = (await WorkspaceStorage.fetchWorkspacesCountForWindow(windowId)) + 1;
 
-    const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active || false);
+    const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active || false, true);
 
     // Re-render context menu
     BackgroundLogic.updateContextMenu();
@@ -246,7 +246,12 @@ const BackgroundLogic = {
 
   async handleTabsCreated() {
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
-    workspace.lastTabGetsClosedNext = false;
+    let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
+
+    if (tabCount > 1) {
+      workspace.lastTabGetsClosedNext = false;
+    }
+
     workspace.lastActiveTab = await workspace.getActiveTab();
 
     const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext, lastActiveTab: workspace.lastActiveTab };
@@ -259,6 +264,8 @@ const BackgroundLogic = {
 
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
+
+    console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
 
     if (workspace.lastTabGetsClosedNext) {
       let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
@@ -302,6 +309,12 @@ const BackgroundLogic = {
       tabs = [clickedTab];
     }
 
+    if (tabs.length > 1) {
+      destinationWorkspace.lastTabGetsClosedNext = false;
+      const state = { name: destinationWorkspace.name, active: destinationWorkspace.active, hiddenTabs: destinationWorkspace.hiddenTabs, windowId: destinationWorkspace.windowId, lastTabGetsClosedNext: destinationWorkspace.lastTabGetsClosedNext, lastActiveTab: destinationWorkspace.lastActiveTab };
+      WorkspaceStorage.storeWorkspaceState(destinationWorkspace.id, state);
+    }
+
     await BackgroundLogic.moveTabToWorkspace(tabs, clickedTab, destinationWorkspace);
   },
 
@@ -341,8 +354,6 @@ const BackgroundLogic = {
           break;
       }
 
-      console.log("bis hierhin geht's gar nicht");
-
       const sidebar = await BackgroundLogic.getView("sidebar");
 
       if (!create) {
@@ -376,6 +387,7 @@ const BackgroundLogic = {
     if (workspace.active) {
       li.classList.add("active");
     }
+    li.tabIndex = 0;
     const name = document.createElement("span");
     name.classList.add("workspace-name");
     li.appendChild(name);
@@ -395,6 +407,7 @@ const BackgroundLogic = {
     const renameBtn = document.createElement("a");
     renameBtn.classList.add("edit-button", "edit-button-rename", "js-edit-workspace");
     renameBtn.href = "#";
+    renameBtn.tabIndex = 0;
     const editIcon = `<svg id="rename-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
     renameBtn.insertAdjacentHTML('beforeend', editIcon);
     li.appendChild(renameBtn);
@@ -402,6 +415,7 @@ const BackgroundLogic = {
     const deleteBtn = document.createElement("a");
     deleteBtn.classList.add("edit-button", "edit-button-delete", "js-delete-workspace");
     deleteBtn.href = "#";
+    deleteBtn.tabIndex = 0;
     const deleteIcon = `<svg id="delete-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
     deleteBtn.insertAdjacentHTML('beforeend', deleteIcon);
     li.appendChild(deleteBtn);
