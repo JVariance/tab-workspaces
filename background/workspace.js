@@ -137,9 +137,6 @@ class Workspace {
 
   async attachTab(tab) {
 
-    console.log("attachTab()");
-    console.log(this);
-
     this.hiddenTabs.push(tab);
 
     await browser.tabs.show(tab.id);
@@ -149,9 +146,6 @@ class Workspace {
   async detachTab(tab) {
     // We need to refresh the state because if the active workspace was switched we might have an old reference
     await this.refreshState();
-
-    console.log("detachTab()");
-    console.log(this);
 
     if (this.active) {
       // If the workspace is currently active, simply hide the tab.

@@ -23,6 +23,8 @@ const BackgroundLogic = {
     browser.commands.onCommand.addListener(BackgroundLogic.handleCommands);
   },
 
+  workspaceDeleted: false,
+
   async getWorkspacesForCurrentWindow() {
     return await BackgroundLogic.getWorkspacesForWindow(await BackgroundLogic.getCurrentWindowId());
   },
@@ -143,6 +145,8 @@ const BackgroundLogic = {
 
   async deleteWorkspace(workspaceId) {
 
+    BackgroundLogic.workspaceDeleted = true;
+
     let views = await BackgroundLogic.getViewsArray();
     views.map(function (view) {
       let workspaceList = view.document.getElementById("workspace-list");
@@ -161,7 +165,9 @@ const BackgroundLogic = {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
     const workspaceToDelete = await Workspace.find(workspaceId);
-    let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
+    // let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
+    let tabsToDelete = await workspaceToDelete.getTabs();
+    tabsToDelete = tabsToDelete.map(tab => tab.id);
     await browser.tabs.remove(tabsToDelete);
 
     if (currentWorkspace.id == workspaceId) {
@@ -173,6 +179,8 @@ const BackgroundLogic = {
 
     // Re-render context menu
     await BackgroundLogic.updateContextMenu();
+
+    BackgroundLogic.workspaceDeleted = false;
   },
 
   async moveTabToWorkspace(tabs, clickedTab, destinationWorkspace) {
@@ -315,7 +323,7 @@ const BackgroundLogic = {
 
     console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
 
-    if (workspace.lastTabGetsClosedNext) {
+    if (BackgroundLogic.workspaceDeleted === false && workspace.lastTabGetsClosedNext) {
       let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
       await browser.tabs.create({ url: null, active: true });
       await browser.tabs.hide(newActiveTab.id);
