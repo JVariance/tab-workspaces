@@ -1,4 +1,4 @@
-const SidebarLogic = {
+const Logic = {
 
     workspaces: [],
 
@@ -7,7 +7,7 @@ const SidebarLogic = {
         // browser.storage.local.clear();
 
         // We need the workspaces for rendering, so wait for this one
-        await SidebarLogic.fetchWorkspaces();
+        await Logic.fetchWorkspaces();
 
         browser.storage.local.get("workspacestheme").then((item) => {
             if (item.workspacestheme === undefined) {
@@ -21,8 +21,8 @@ const SidebarLogic = {
             }
         }, (err) => console.log(err));
 
-        SidebarLogic.renderWorkspacesList();
-        SidebarLogic.registerEventListeners();
+        Logic.renderWorkspacesList();
+        Logic.registerEventListeners();
     },
 
     registerEventListeners() {
@@ -45,7 +45,7 @@ const SidebarLogic = {
                 }
 
                 const workspaceId = e.target.dataset.workspaceId;
-                await SidebarLogic.callBackground("switchToWorkspace", {
+                await Logic.callBackground("switchToWorkspace", {
                     workspaceId: workspaceId
                 });
 
@@ -53,11 +53,8 @@ const SidebarLogic = {
                 document.querySelector(`#ws-${workspaceId}`).classList.add("active");
 
             } else if (e.target.classList.contains("js-new-workspace") || e.target.classList.contains("js-plus-icon")) {
-                await SidebarLogic.callBackground("createNewWorkspaceAndSwitch");
-                await SidebarLogic.fetchWorkspaces();
-                // await SidebarLogic.callBackground();
-                // await SidebarLogic.renderWorkspacesList();
-
+                await Logic.callBackground("createNewWorkspaceAndSwitch");
+                await Logic.fetchWorkspaces();
             } else if (e.target.classList.contains("js-switch-panel")) {
                 document.querySelectorAll(".container").forEach(el => el.classList.toggle("hide"));
 
@@ -77,19 +74,11 @@ const SidebarLogic = {
                 }
 
                 const workspaceId = li.dataset.workspaceId;
-                // li.parentNode.removeChild(li);
 
                 // Delete the workspace
-                await SidebarLogic.callBackground("deleteWorkspace", {
+                await Logic.callBackground("deleteWorkspace", {
                     workspaceId: workspaceId
                 });
-
-                // let workspaces = Array.from(document.querySelectorAll(".js-switch-workspace")),
-                //     activeIndex = workspaces.findIndex(ws => ws.classList.contains("active"));
-
-                // if (activeIndex < 0) {
-                //     workspaces[workspaces.length - 1].classList.add("active");
-                // }
             }
         });
 
@@ -126,14 +115,14 @@ const SidebarLogic = {
 
                 // Save new name
                 const workspaceId = e.target.parentNode.dataset.workspaceId;
-                await SidebarLogic.callBackground("renameWorkspace", {
+                await Logic.callBackground("renameWorkspace", {
                     workspaceId: workspaceId,
                     workspaceName: name
                 });
 
                 // And re-render the list panel
-                await SidebarLogic.fetchWorkspaces();
-                SidebarLogic.renderWorkspacesList();
+                await Logic.fetchWorkspaces();
+                Logic.renderWorkspacesList();
             }
         });
 
@@ -150,7 +139,7 @@ const SidebarLogic = {
 
                 const el = document.querySelector(`#workspace-list li:nth-child(${index})`);
                 if (el) {
-                    SidebarLogic.callBackground("switchToWorkspace", {
+                    Logic.callBackground("switchToWorkspace", {
                         workspaceId: el.dataset.workspaceId
                     });
                 }
@@ -160,7 +149,7 @@ const SidebarLogic = {
     },
 
     async fetchWorkspaces() {
-        this.workspaces = await SidebarLogic.callBackground("getWorkspacesForCurrentWindow");
+        this.workspaces = await Logic.callBackground("getWorkspacesForCurrentWindow");
     },
 
     async renderWorkspacesList() {
@@ -238,4 +227,4 @@ const SidebarLogic = {
     }
 }
 
-SidebarLogic.init();
+Logic.init();

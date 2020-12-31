@@ -60,5 +60,5 @@ web-ext build --overwrite-dest
 
 ``` 
 
-sass --watch popup/sass:popup/css
+sass --watch sass/sidebar.scss:views/sidebar/sidebar.css sass/popup.scss:views/popup/popup.css sass/options.scss:views/options/options.css sass/switched-workspace.scss:contentScripts/switched-workspace.css
 ```

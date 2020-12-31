@@ -1,0 +1,59 @@
+/* light: #eeeeee text: #111*/
+
+#tab-workspaces-message {
+    padding: 20px !important;
+    min-width: 300px !important;
+    background-color: #3b3b3b !important;
+    color: #fff !important;
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    border-radius: 5px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 20px !important;
+    z-index: 9999999999 !important;
+    opacity: 0 !important;
+    transition: opacity 1000ms !important;
+    font-family: sans-serif !important;
+    font-weight: bold !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 20px -5px #000 !important;
+    box-sizing: border-box !important;
+    height: unset !important;
+    border: 1px solid #2e2e2e !important;
+}
+
+#tab-workspaces-message p {
+    font-size: 16px !important;
+    white-space: pre !important;
+    line-height: 24px !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+}
+
+#tab-workspaces-message svg {
+    width: 30px !important;
+    max-width: 30px !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#tab-workspaces-message::selection {
+    background: transparent !important;
+}
+
+#tab-workspaces-message.show {
+    opacity: 1 !important;
+    transition: opacity 1000ms !important;
+}
+
+#tab-workspaces-message.hide {
+    opacity: 0 !important;
+    transition: opacity 1000ms !important;
+}

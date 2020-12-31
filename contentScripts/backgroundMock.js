@@ -4,7 +4,6 @@ const BackgroundMock = {
   sendMessage(m) {
     if (m.method == "getWorkspacesForCurrentWindow") {
       return BackgroundMock.getMockWorkspaces();
-
     } else {
       console.log(`Sending message ${m.method} to backend...`);
     }
@@ -21,13 +20,13 @@ const BackgroundMock = {
       {
         id: "yyyyy",
         name: "Workspace 2",
-        active: true,
+        active: false,
         hiddenTabs: []
       },
       {
         id: "zzzzz",
         name: "Workspace 3",
-        active: true,
+        active: false,
         hiddenTabs: []
       }
     ];

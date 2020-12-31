@@ -5,8 +5,8 @@
 
   "description": "Organize your tabs into workspaces. Switch between workspaces to change which tabs are displayed at the moment.",
   "icons": {
-    "48": "icons/workspaces-light-filled-48.png",
-    "96": "icons/workspaces-light-filled-96.png"
+    "48": "images/icons/workspaces-light-filled-48.png",
+    "96": "images/icons/workspaces-light-filled-96.png"
   },
 
   "homepage_url": "https://github.com/JVariance/tab-workspaces",
@@ -23,16 +23,16 @@
 
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/workspaces-light-filled.svg",
+    "default_icon": "images/icons/workspaces-light-filled.svg",
     "default_title": "Workspaces",
-    "default_popup": "popup/popup.html",
+    "default_popup": "views/popup/popup.html",
     "theme_icons": [{
-      "light": "icons/workspaces-dark-filled-16.png",
-      "dark": "icons/workspaces-light-filled-16.png",
+      "light": "images/icons/workspaces-dark-filled-16.png",
+      "dark": "images/icons/workspaces-light-filled-16.png",
       "size": 16
     }, {
-      "light": "icons/workspaces-dark-filled-32.png",
-      "dark": "icons/workspaces-light-filled-32.png",
+      "light": "images/icons/workspaces-dark-filled-32.png",
+      "dark": "images/icons/workspaces-light-filled-32.png",
       "size": 32
     }]
   },
@@ -40,8 +40,8 @@
   "sidebar_action": {
     "browser_style": true,
     "default_title": "Workspaces",
-    "default_panel": "sidebar/sidebar.html",
-    "default_icon": "icons/workspaces-dark-filled.svg",
+    "default_panel": "views/sidebar/sidebar.html",
+    "default_icon": "images/icons/workspaces-dark-filled.svg",
     "open_at_install": true
   },
 
@@ -94,7 +94,7 @@
   },
 
   "options_ui": {
-    "page": "options/options.html",
+    "page": "views/options/options.html",
     "browser_style": true
   },
 
@@ -108,7 +108,7 @@
     }
   },
   "web_accessible_resources": [
-    "sidebar/sidebar.html",
-    "sidebar/js/sidebar.js"
+    "views/sidebar/sidebar.html",
+    "contentScripts/handleViews.js"
   ]
 }

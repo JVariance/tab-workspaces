@@ -169,34 +169,10 @@ const BackgroundLogic = {
       await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
     }
 
-
-
     await workspaceToDelete.delete();
 
     // Re-render context menu
     await BackgroundLogic.updateContextMenu();
-
-    // let views = await BackgroundLogic.getViewsArray();
-    // views.map(function (view) {
-    //   let workspaceList = view.document.getElementById("workspace-list");
-    //   console.log(`ws-${workspaceId}`);
-    //   let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => console.log(ws.id));
-
-    //   console.log({ index });
-
-    //   if (index !== -1) {
-    //     let toBeDeletedWorkspace = workspaceList.querySelector(`#ws-${workspaceId}`);
-    //     console.log({ toBeDeletedWorkspace });
-    //     let wasActive = toBeDeletedWorkspace.classList.contains("active");
-    //     toBeDeletedWorkspace.remove();
-    //     if (wasActive) {
-    //       console.log(Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)]);
-    //       Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
-    //     }
-    //   }
-    //   // console.log(workspaceList.querySelectorAll(".workspace-list-entry"));
-    // });
-
   },
 
   async moveTabToWorkspace(tabs, clickedTab, destinationWorkspace) {
