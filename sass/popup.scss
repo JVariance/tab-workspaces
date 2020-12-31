@@ -47,6 +47,35 @@ h1 {
     font-weight: normal;
 }
 
+.title {
+    display: flex;
+    gap: .5rem;
+    justify-content: flex-end;
+}
+
+a#settings {
+    appearance: none;
+    background: transparent;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+    background: var(--secondary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+        width: 80%;
+        stroke: #000;
+        pointer-events: none;
+    }
+}
+
+body[theme="dark"] a#settings svg {
+    stroke: #fff;
+}
+
 input#theme-switch {
     position: absolute;
     top: -9999px;
@@ -55,13 +84,9 @@ input#theme-switch {
 
 label[for="theme-switch"] {
     cursor: pointer;
-    position: absolute;
-    top: 50%;
-    right: 0;
     width: 30px;
     height: 30px;
     border-radius: 30px;
-    transform: translate(0, -50%);
     background: #e4e4e4;
     display: flex;
     justify-content: center;

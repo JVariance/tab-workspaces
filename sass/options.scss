@@ -17,4 +17,130 @@ body {
     width: 100vw;
     height: 100vh;
     color: var(--text-color);
+    font-family: sans-serif;
+    overflow: hidden;
+    margin: 0;
+}
+
+#notifications {
+
+    h1 {
+        &::before {
+            content: "🔔";
+            font-size: 1.75rem;
+            margin-right: 1rem;
+        }
+    }
+
+    fieldset {
+        border: none;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    label {
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    input {
+        appearance: none;
+        background-color: #45A1FF;
+        width: 20px;
+        height: 20px;
+        border: none;
+        border-radius: 20%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+
+        &:checked {
+            &::before {
+                content: "✔";
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #fff;
+                width: 12px;
+                height: 12px;
+            }
+        }
+    }
+}
+
+#default-shorcuts {
+
+    h1 {
+        &::before {
+            content: "🔗";
+            font-size: 1.75rem;
+            margin-right: 1rem;
+        }
+    }
+
+    padding-bottom: 2rem;
+
+    table {
+
+        border-collapse: collapse;
+
+        th,
+        td {
+            &:not(:first-child) {
+                padding: 1rem 5rem;
+            }
+        }
+
+        th {
+            text-align: left;
+        }
+    }
+
+    .callout {
+        display: grid;
+        align-items: center;
+        margin-top: 2rem;
+        max-width: 400px;
+        background-color: Rgba(0 0 0 / 0.5);
+        padding: 1rem;
+        box-sizing: border-box;
+        border-radius: 10px;
+
+        p {
+            grid-row: 1;
+            grid-column: 2;
+        }
+
+        &::before {
+            content: "💡";
+            font-size: 1.75rem;
+            margin-right: 1rem;
+            grid-row: 1;
+            grid-column: 1;
+        }
+    }
+}
+
+.shortcut span {
+    box-sizing: border-box;
+    line-height: 1.5rem;
+    font-size: 1.2rem;
+    padding: .1rem .5rem;
+    text-align: center;
+    width: max-content;
+    height: max-content;
+    color: #555;
+    // margin: 0 8px;
+    border-color: #f2f2f2;
+    border-style: solid;
+    text-shadow: 0 0.5px 1px #777, 0 2px 6px #f2f2f2;
+    border-width: 1px;
+    border-radius: 5px;
+    background: -webkit-linear-gradient(top, #f9f9f9 0%, #D2D2D2 80%, #c0c0c0 100%);
+    display: inline-block;
+    box-shadow: 0 0 1px #888, 0 1px 0 #fff, 0 6px 0 #C0C0C0, 0 8px 17px rgba(#444, 0.4), 2px 1px 4px rgba(#444, 0.25), -2px 1px 4px rgba(#444, 0.25), 0 9px 16px rgba(#444, 0.1);
 }

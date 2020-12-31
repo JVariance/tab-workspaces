@@ -79,6 +79,9 @@ const Logic = {
                 await Logic.callBackground("deleteWorkspace", {
                     workspaceId: workspaceId
                 });
+            } else if (e.target.id === "settings") {
+                e.preventDefault();
+                browser.runtime.openOptionsPage();
             }
         });
 

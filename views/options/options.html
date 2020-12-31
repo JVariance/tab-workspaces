@@ -3,15 +3,69 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title></title>
-    <link rel="stylesheet" href="/popup/css/options.css">
+    <link rel="stylesheet" href="css/options.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500,700" rel="stylesheet">
 </head>
 
 <body theme="dark">
-    <form>
-        <label for="show-notifications">Show switch notifications:</label>
-        <input type="checkbox" name="show-notifications" id="show-notifications">
+    <form id="notifications">
+        <h1>Notifications</h1>
+        <fieldset>
+            <label for="show-notifications">Show switch notifications:</label>
+            <input type="checkbox" name="show-notifications" id="show-notifications">
+        </fieldset>
     </form>
+
+    <div id="default-shorcuts">
+        <h1>Default Shortcuts</h1>
+        <table>
+            <tr>
+                <th>Action</th>
+                <th>Shortcut</th>
+            </tr>
+            <tr>
+                <td>Open Sidebar</td>
+                <td class="shortcut">
+                    <span>Ctrl</span>
+                    <span>Q</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Create Workspace</td>
+                <td class="shortcut">
+                    <span>Ctrl</span>
+                    <span>Alt</span>
+                    <span>A</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Next Workspace</td>
+                <td class="shortcut">
+                    <span>Ctrl</span>
+                    <span>Alt</span>
+                    <span>C</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Previous Workspace</td>
+                <td class="shortcut">
+                    <span>Ctrl</span>
+                    <span>Alt</span>
+                    <span>X</span>
+                </td>
+            </tr>
+        </table>
+        <div class="callout">
+            <p>You can change the shorcuts via Firefox' native solution.<br />
+                Therefore click on the settings/cog symbol in the top right corner and choose the corresponding menu
+                item.</p>
+        </div>
+        <!-- <div>
+            <p>Create a workspace:</p>
+            <p>Next workspace:</p>
+            <p>Previous workspace:</p>
+        </div> -->
+    </div>
 
     <script src="options.js"></script>
 </body>
