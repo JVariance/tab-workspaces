@@ -51,6 +51,10 @@ h1 {
     display: flex;
     gap: .5rem;
     justify-content: flex-end;
+
+    h1 {
+        margin-right: auto;
+    }
 }
 
 a#settings {
