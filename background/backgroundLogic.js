@@ -214,6 +214,23 @@ const BackgroundLogic = {
     sidebar.document.querySelector(`#ws-${destinationWorkspace.id}`).querySelector(".tabs-qty").textContent = destinationWorkspace.tabCount;
   },
 
+  async renderWorkspacesList(workspaces) {
+    const views = await BackgroundLogic.getViewsArray();
+
+    views.map(view => {
+      const fragment = document.createDocumentFragment();
+
+      workspaces.forEach(workspace => {
+        const li = BackgroundLogic.createListItem(workspace);
+        fragment.appendChild(li);
+      });
+
+      const list = view.document.querySelector("#workspace-list");
+      list.innerHTML = '';
+      list.appendChild(fragment);
+    });
+  },
+
   tearDownWindow(windowId) {
     // Don't tear down if the user is closing the browser
     setTimeout(() => {

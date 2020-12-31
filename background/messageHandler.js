@@ -23,6 +23,11 @@ browser.runtime.onMessage.addListener(async (m, sender, sendResponse) => {
     case "deleteWorkspace":
       await BackgroundLogic.deleteWorkspace(m.workspaceId);
       break;
+
+    case "renderWorkspacesList":
+      await BackgroundLogic.renderWorkspacesList(m.workspaces);
+      return;
+      break;
   }
 
   return response;
