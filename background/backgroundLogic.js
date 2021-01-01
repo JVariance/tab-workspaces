@@ -168,19 +168,31 @@ const BackgroundLogic = {
     // let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
     let tabsToDelete = await workspaceToDelete.getTabs();
     tabsToDelete = tabsToDelete.map(tab => tab.id);
-    await browser.tabs.remove(tabsToDelete);
 
     if (currentWorkspace.id == workspaceId) {
       const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
       await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
     }
+    await browser.tabs.remove(tabsToDelete);
 
     await workspaceToDelete.delete();
 
     // Re-render context menu
     await BackgroundLogic.updateContextMenu();
 
-    BackgroundLogic.workspaceDeleted = false;
+    let allDeleted = false;
+
+    while (!allDeleted) {
+      let allTabIds = await browser.tabs.query({ windowId });
+      allTabIds = allTabIds.map(tab => tab.id);
+      if (tabsToDelete.some(id => allTabIds.includes(id))) {
+        console.log("gefunden!");
+      } else {
+        console.log("Erfolgreich keine gefunden!");
+        BackgroundLogic.workspaceDeleted = false;
+        allDeleted = true;
+      }
+    }
   },
 
   async moveTabToWorkspace(tabs, clickedTab, destinationWorkspace) {
@@ -318,26 +330,33 @@ const BackgroundLogic = {
 
   async handleTabsRemoved(tabId, removeInfo) {
 
+    console.log({ tabId });
+
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
 
     console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
+    console.log("Workspace deleted: " + BackgroundLogic.workspaceDeleted);
 
-    if (BackgroundLogic.workspaceDeleted === false && workspace.lastTabGetsClosedNext) {
-      let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
-      await browser.tabs.create({ url: null, active: true });
-      await browser.tabs.hide(newActiveTab.id);
+    if (BackgroundLogic.workspaceDeleted === false) {
+      // if (BackgroundLogic.workspaceDeleted === false && workspace.lastTabGetsClosedNext) {
+      if (workspace.lastTabGetsClosedNext) {
+        let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
+        await browser.tabs.create({ url: null, active: true });
+        await browser.tabs.hide(newActiveTab.id);
+      }
+
+      if (tabCount <= 1) {
+        console.log("hier wird reingonge!");
+        workspace.lastTabGetsClosedNext = true;
+        workspace.lastActiveTab = await workspace.getActiveTab();
+
+        const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext, lastActiveTab: workspace.lastActiveTab };
+        await WorkspaceStorage.storeWorkspaceState(workspace.id, state);
+      }
     }
 
-    if (tabCount <= 1) {
-      workspace.lastTabGetsClosedNext = true;
-      workspace.lastActiveTab = await workspace.getActiveTab();
-
-      const state = { name: workspace.name, active: workspace.active, hiddenTabs: workspace.hiddenTabs, windowId: workspace.windowId, lastTabGetsClosedNext: workspace.lastTabGetsClosedNext, lastActiveTab: workspace.lastActiveTab };
-      WorkspaceStorage.storeWorkspaceState(workspace.id, state);
-    }
-
-    BackgroundLogic.updateContextMenu();
+    await BackgroundLogic.updateContextMenu();
   },
 
   updateContextMenu: Util.debounce(async () => {
