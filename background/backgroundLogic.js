@@ -324,13 +324,18 @@ const BackgroundLogic = {
     });
   },
 
+  lastTabClosed: false,
+
   async handleTabsCreated() {
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
 
-    // if (tabCount > 1) {
-    if (tabCount > 0) {
-      workspace.lastTabGetsClosedNext = false;
+    if (BackgroundLogic.lastTabClosed) {
+      workspace.lastTabGetsClosedNext = true;
+    } else {
+      if (tabCount > 1) {
+        workspace.lastTabGetsClosedNext = false;
+      }
     }
 
     workspace.lastActiveTab = await workspace.getActiveTab();
@@ -339,6 +344,7 @@ const BackgroundLogic = {
     WorkspaceStorage.storeWorkspaceState(workspace.id, state);
 
     BackgroundLogic.updateContextMenu();
+    BackgroundLogic.lastTabClosed = false;
   },
 
   async handleTabsRemoved(tabId, removeInfo) {
@@ -352,6 +358,7 @@ const BackgroundLogic = {
         let newActiveTab = (await browser.tabs.query({ hidden: false, active: true }))[0];
         await browser.tabs.create({ url: null, active: true });
         await browser.tabs.hide(newActiveTab.id);
+        BackgroundLogic.lastTabClosed = true;
       }
 
       if (tabCount <= 1) {
@@ -390,6 +397,7 @@ const BackgroundLogic = {
       tabs = [clickedTab];
     }
 
+    // if (tabs.length > 0) {
     if (tabs.length > 1) {
       destinationWorkspace.lastTabGetsClosedNext = false;
       const state = { name: destinationWorkspace.name, active: destinationWorkspace.active, hiddenTabs: destinationWorkspace.hiddenTabs, windowId: destinationWorkspace.windowId, lastTabGetsClosedNext: destinationWorkspace.lastTabGetsClosedNext, lastActiveTab: destinationWorkspace.lastActiveTab };
