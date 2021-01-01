@@ -35,7 +35,7 @@ const BackgroundLogic = {
     if (workspaces.length > 0) {
       return workspaces;
     } else {
-      const defaultWorkspace = await BackgroundLogic.createNewWorkspace(true);
+      const defaultWorkspace = await BackgroundLogic.createNewWorkspace(true, true);
       return [defaultWorkspace];
     }
   },
@@ -65,11 +65,20 @@ const BackgroundLogic = {
     }
   },
 
-  async createNewWorkspace(active) {
+  async createNewWorkspace(active = false, defaultWorkspace = false) {
     const windowId = await BackgroundLogic.getCurrentWindowId();
     const nextNumber = (await WorkspaceStorage.fetchWorkspacesCountForWindow(windowId)) + 1;
 
-    const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active || false, true);
+    let lastTabGetsClosedNext = true;
+
+    if (defaultWorkspace) {
+      let tabs = await browser.tabs.query({ windowId, hidden: false });
+      if (tabs.length > 1) {
+        lastTabGetsClosedNext = false;
+      }
+    }
+
+    const workspace = await Workspace.create(windowId, `Workspace ${nextNumber}`, active, lastTabGetsClosedNext);
 
     // Re-render context menu
     BackgroundLogic.updateContextMenu();
@@ -143,54 +152,57 @@ const BackgroundLogic = {
     BackgroundLogic.updateContextMenu();
   },
 
+  deleteTimeout: false,
+
   async deleteWorkspace(workspaceId) {
 
-    BackgroundLogic.workspaceDeleted = true;
+    if (!BackgroundLogic.deleteTimeout) {
+      BackgroundLogic.deleteTimeout = true;
+      BackgroundLogic.workspaceDeleted = true;
 
-    let views = await BackgroundLogic.getViewsArray();
-    views.map(function (view) {
-      let workspaceList = view.document.getElementById("workspace-list");
-      let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => ws.id === `ws-${workspaceId}`);
+      let views = await BackgroundLogic.getViewsArray();
+      views.map(function (view) {
+        let workspaceList = view.document.getElementById("workspace-list");
+        let index = Array.from(workspaceList.querySelectorAll(".workspace-list-entry")).findIndex(ws => ws.id === `ws-${workspaceId}`);
 
-      if (index !== -1) {
-        let toBeDeletedWorkspace = workspaceList.querySelector(`#ws-${workspaceId}`);
-        let wasActive = toBeDeletedWorkspace.classList.contains("active");
-        toBeDeletedWorkspace.remove();
-        if (wasActive) {
-          Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
+        if (index !== -1) {
+          let toBeDeletedWorkspace = workspaceList.querySelector(`#ws-${workspaceId}`);
+          let wasActive = toBeDeletedWorkspace.classList.contains("active");
+          toBeDeletedWorkspace.remove();
+          if (wasActive) {
+            Array.from(workspaceList.querySelectorAll(".workspace-list-entry"))[Math.max(index - 1, 0)].classList.add("active");
+          }
         }
+      });
+
+      const windowId = await BackgroundLogic.getCurrentWindowId();
+      const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
+      const workspaceToDelete = await Workspace.find(workspaceId);
+      let tabsToDelete = await workspaceToDelete.getTabs();
+      tabsToDelete = tabsToDelete.map(tab => tab.id);
+
+      if (currentWorkspace.id == workspaceId) {
+        const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
+        await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
       }
-    });
 
-    const windowId = await BackgroundLogic.getCurrentWindowId();
-    const currentWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(windowId);
-    const workspaceToDelete = await Workspace.find(workspaceId);
-    // let tabsToDelete = workspaceToDelete.hiddenTabs.map(tab => tab.id);
-    let tabsToDelete = await workspaceToDelete.getTabs();
-    tabsToDelete = tabsToDelete.map(tab => tab.id);
+      await browser.tabs.remove(tabsToDelete);
 
-    if (currentWorkspace.id == workspaceId) {
-      const nextWorkspaceId = await WorkspaceStorage.fetchNextWorkspaceId(windowId, workspaceId);
-      await BackgroundLogic.switchToWorkspace(nextWorkspaceId);
-    }
-    await browser.tabs.remove(tabsToDelete);
+      await workspaceToDelete.delete();
 
-    await workspaceToDelete.delete();
+      // Re-render context menu
+      await BackgroundLogic.updateContextMenu();
 
-    // Re-render context menu
-    await BackgroundLogic.updateContextMenu();
-
-    let allDeleted = false;
-
-    while (!allDeleted) {
-      let allTabIds = await browser.tabs.query({ windowId });
-      allTabIds = allTabIds.map(tab => tab.id);
-      if (tabsToDelete.some(id => allTabIds.includes(id))) {
-        console.log("gefunden!");
-      } else {
-        console.log("Erfolgreich keine gefunden!");
-        BackgroundLogic.workspaceDeleted = false;
-        allDeleted = true;
+      let allDeleted = false;
+      while (!allDeleted) {
+        let allTabIds = await browser.tabs.query({ windowId });
+        allTabIds = allTabIds.map(tab => tab.id);
+        let foundSome = tabsToDelete.some(id => allTabIds.includes(id));
+        if (!foundSome) {
+          BackgroundLogic.workspaceDeleted = false;
+          allDeleted = true;
+          BackgroundLogic.deleteTimeout = false;
+        }
       }
     }
   },
@@ -330,13 +342,8 @@ const BackgroundLogic = {
 
   async handleTabsRemoved(tabId, removeInfo) {
 
-    console.log({ tabId });
-
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
-
-    console.log("lastTabGetsClosedNext: " + workspace.lastTabGetsClosedNext);
-    console.log("Workspace deleted: " + BackgroundLogic.workspaceDeleted);
 
     if (BackgroundLogic.workspaceDeleted === false) {
       // if (BackgroundLogic.workspaceDeleted === false && workspace.lastTabGetsClosedNext) {
@@ -347,7 +354,6 @@ const BackgroundLogic = {
       }
 
       if (tabCount <= 1) {
-        console.log("hier wird reingonge!");
         workspace.lastTabGetsClosedNext = true;
         workspace.lastActiveTab = await workspace.getActiveTab();
 
