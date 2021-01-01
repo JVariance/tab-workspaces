@@ -328,7 +328,8 @@ const BackgroundLogic = {
     let workspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
     let tabCount = (await browser.tabs.query({ hidden: false, active: false })).length;
 
-    if (tabCount > 1) {
+    // if (tabCount > 1) {
+    if (tabCount > 0) {
       workspace.lastTabGetsClosedNext = false;
     }
 
