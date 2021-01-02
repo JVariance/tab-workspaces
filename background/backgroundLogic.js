@@ -198,17 +198,21 @@ const BackgroundLogic = {
       // Re-render context menu
       await BackgroundLogic.updateContextMenu();
 
-      let allTabsDeleted = false;
-      while (!allTabsDeleted) {
-        let allTabIds = await browser.tabs.query({ windowId });
-        allTabIds = allTabIds.map(tab => tab.id);
-        let foundSome = BackgroundLogic.tabsToRemove.some(id => allTabIds.includes(id));
-        if (!foundSome) {
-          BackgroundLogic.workspaceDeleted = false;
-          allTabsDeleted = true;
-          BackgroundLogic.deleteTimeout = false;
-        }
-      }
+      BackgroundLogic.workspaceDeleted = false;
+      allTabsDeleted = true;
+      BackgroundLogic.deleteTimeout = false;
+
+      // let allTabsDeleted = false;
+      // while (!allTabsDeleted) {
+      //   let allTabIds = await browser.tabs.query({ windowId });
+      //   allTabIds = allTabIds.map(tab => tab.id);
+      //   let foundSome = BackgroundLogic.tabsToRemove.some(id => allTabIds.includes(id));
+      //   if (!foundSome) {
+      //     BackgroundLogic.workspaceDeleted = false;
+      //     allTabsDeleted = true;
+      //     BackgroundLogic.deleteTimeout = false;
+      //   }
+      // }
     }
   },
 
