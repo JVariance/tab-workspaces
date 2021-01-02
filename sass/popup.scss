@@ -229,12 +229,20 @@ li.workspace-list-entry {
     display: flex;
     align-items: center;
     overflow: hidden;
+    // opacity: 1;
+    // transition: transform 500ms, opacity 500ms;
 
     &::before {
         counter-increment: num;
         content: counter(num) ". ";
     }
 }
+
+// li.workspace-list-entry.remove {
+//     background-color: red !important;
+//     opacity: 0.5 !important;
+//     pointer-events: none;
+// }
 
 li.workspace-list-entry.active {
     cursor: default;

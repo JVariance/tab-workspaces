@@ -72,7 +72,32 @@ const Logic = {
                     // Can't delete the last workspace
                     return;
                 }
+                // let allItems = Array.from(li.parentElement.querySelectorAll(".workspace-list-entry"));
+                // li.style.zIndex = "-1";
+                // let index = allItems.findIndex(item => item === li);
+                // let itemHeight = li.getBoundingClientRect().height;
+                // let normalizeItems = [];
+                // li.style.opacity = "0";
+                // setTimeout(function () {
+                //     for (var i = index; i < allItems.length; i++) {
+                //         allItems[i].style.transition = `transform 500ms, opacity 500ms`;
+                //         allItems[i].style.transitionDelay = `500ms, 0ms`;
+                //         allItems[i].style.transform = `translateY(-${itemHeight}px)`;
+                //         if (i > index) {
+                //             normalizeItems.push(allItems[i]);
+                //         }
+                //     }
+                // }, 500);
+                // setTimeout(function () {
+                //     for (var i = 0; i < normalizeItems.length; i++) {
+                //         normalizeItems[i].style.transition = `unset`;
+                //         normalizeItems[i].style.transform = `translateY(0px)`;
+                //     }
+                //     // li.remove();
+                //     // li.style.display = "none";
+                // }, 1000);
 
+                // li.classList.add("remove");
                 const workspaceId = li.dataset.workspaceId;
 
                 // Delete the workspace
