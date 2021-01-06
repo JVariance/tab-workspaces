@@ -166,6 +166,19 @@ const BackgroundLogic = {
       BackgroundLogic.deleteTimeout = true;
       BackgroundLogic.workspaceDeleted = true;
 
+      let workspaces = await BackgroundLogic.getWorkspacesForCurrentWindow();
+      let activeWorkspace = await BackgroundLogic.getCurrentWorkspaceForWindow(await BackgroundLogic.getCurrentWindowId());
+      let currentWorkspaceIndex = workspaces.findIndex(ws => ws.id === workspaceId);
+      if (currentWorkspaceIndex < 0) {
+        return;
+      }
+      let newWorkspaceIndex = (workspaces[Util.crawlArray(workspaces, 0, currentWorkspaceIndex - 1)]).id;
+      console.log({ workspaces, activeWorkspace, currentWorkspaceIndex, newWorkspaceIndex });
+      if (newWorkspaceIndex !== activeWorkspace.id) {
+        await BackgroundLogic.switchToWorkspace(newWorkspaceIndex);
+        console.log("switched");
+      }
+
       let views = await BackgroundLogic.getViewsArray();
       views.map(function (view) {
         let workspaceList = view.document.getElementById("workspace-list");
